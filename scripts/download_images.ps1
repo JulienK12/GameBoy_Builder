@@ -1,0 +1,140 @@
+$images = @{
+    "shells" = @{
+        "VAR_SHELL_GBC_FP_CLEAR_GREEN" = "https://funnyplaying.com/cdn/shop/products/atomicgreen.jpg"
+        "VAR_SHELL_GBC_FP_ATOMIC_PURPLE" = "https://funnyplaying.com/cdn/shop/products/atomicpurple.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_DEEP_RED" = "https://funnyplaying.com/cdn/shop/products/Cleardeepred.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_YELLOW" = "https://funnyplaying.com/cdn/shop/products/Clearyellow.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR" = "https://funnyplaying.com/cdn/shop/products/Clear.jpg"
+        "VAR_SHELL_GBC_FP_ORANGE" = "https://funnyplaying.com/cdn/shop/products/orange.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_ROYAL_BLUE" = "https://funnyplaying.com/cdn/shop/products/navyblue.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_ORANGE" = "https://funnyplaying.com/cdn/shop/products/DPP_513.jpg"
+        "VAR_SHELL_GBC_FP_GB_GREY" = "https://funnyplaying.com/cdn/shop/products/DPP_544.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_PURPLE" = "https://funnyplaying.com/cdn/shop/products/purple.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_LUMINOUS_BLUE" = "https://funnyplaying.com/cdn/shop/products/Clearluminousblue.jpg"
+        "VAR_SHELL_GBC_FP_PURE_WHITE" = "https://funnyplaying.com/cdn/shop/products/purewhite.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_BLACK" = "https://funnyplaying.com/cdn/shop/products/ClearBlack.jpg"
+        "VAR_SHELL_GBC_FP_BLACK" = "https://funnyplaying.com/cdn/shop/products/Black.jpg"
+        "VAR_SHELL_GBC_FP_PINK" = "https://funnyplaying.com/cdn/shop/products/pink.jpg"
+        "VAR_SHELL_GBC_FP_FLUORESCENT_YELLOW" = "https://funnyplaying.com/cdn/shop/products/DPP_536.jpg"
+        "VAR_SHELL_GBC_FP_EARTHY_YELLOW" = "https://funnyplaying.com/cdn/shop/products/5269.jpg"
+        "VAR_SHELL_GBC_FP_MINT_GREEN" = "https://funnyplaying.com/cdn/shop/products/QQ_20230109104737.png"
+        "VAR_SHELL_GBC_FP_BABY_GREEN" = "https://funnyplaying.com/cdn/shop/products/BABYBLUE.jpg"
+        "VAR_SHELL_GBC_FP_CLEAR_LIGHT_BLUE" = "https://funnyplaying.com/cdn/shop/products/Clearlightblue.jpg"
+        "VAR_SHELL_GBC_CGS_L_FLUORESCENT" = "https://ae-pic-a1.aliexpress-media.com/kf/S420edf10a2aa47adb12eca0c25875311X.jpg"
+        "VAR_SHELL_GBC_CGS_L_CRYSTAL" = "https://ae-pic-a1.aliexpress-media.com/kf/Sfe78458cdf7b4cb685c7aef6673a164fc.jpg"
+        "VAR_SHELL_GBC_CGS_L_SHINING" = "https://ae-pic-a1.aliexpress-media.com/kf/S54daebd258584de79a833b9a8d60112aa.jpg"
+        "VAR_SHELL_GBC_CGS_L_WOOD" = "https://ae-pic-a1.aliexpress-media.com/kf/S5488509d659d424fbae515b73878c32ab.jpg"
+        "VAR_SHELL_GBC_CGS_L_AURORA" = "https://ae-pic-a1.aliexpress-media.com/kf/S0dc558d585294bb185c4dc9f0fa6e502v.jpg"
+        "VAR_SHELL_GBC_CGS_L_CLEAR_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/S5680e05ff69f4310a622a20dca97b15ba.jpg"
+        "VAR_SHELL_GBC_CGS_L_CLEAR_MATTE_BLACK" = "https://ae-pic-a1.aliexpress-media.com/kf/S07512d76fe3d4dfeae34ec90a161809ff.jpg"
+        "VAR_SHELL_GBC_CGS_L_FROSTED_CLEAR" = "https://ae-pic-a1.aliexpress-media.com/kf/S22318e1625414013806d442dedf7ac385.jpg"
+        "VAR_SHELL_GBC_CGS_AURORA" = "https://ae-pic-a1.aliexpress-media.com/kf/Sa5acc5e2cf464de8aefc72cfaf6787429.jpg"
+        "VAR_SHELL_GBC_CGS_PURE_BLACK" = "https://ae-pic-a1.aliexpress-media.com/kf/S5a0a29c250314c07b6e9afed58d2c8daK.jpg"
+        "VAR_SHELL_GBC_CGS_BLUE_GREEN" = "https://ae-pic-a1.aliexpress-media.com/kf/S8e3b61d9d2694f319c38f3fbcdcbca536.jpg"
+        "VAR_SHELL_GBC_CGS_FROSTED_WHITE" = "https://ae-pic-a1.aliexpress-media.com/kf/Sa684133b4dcb4738aaec9fd367e51be4O.jpg"
+        "VAR_SHELL_GBC_CGS_WOOD" = "https://ae-pic-a1.aliexpress-media.com/kf/S44e0669677e342e89d0f9c8fe1bcfd33K.jpg"
+        "VAR_SHELL_GBC_CGS_ICE_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/S752860c58ee24a5da3b78fdbb6749762Z.jpg"
+        "VAR_SHELL_GBC_CGS_GOLD" = "https://ae-pic-a1.aliexpress-media.com/kf/Seff2361b4267477f8cce39f662998c57a.jpg"
+        "VAR_SHELL_GBC_CGS_SILVER" = "https://ae-pic-a1.aliexpress-media.com/kf/S3e3de318ef9c4ff580441667c17b05e0C.jpg"
+        "VAR_SHELL_GBC_CGS_CLEAR_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/S2aaacb6085a646d8bcac461b48c30ae8a.jpg"
+        "VAR_SHELL_GBC_CGS_CLEAR" = "https://ae-pic-a1.aliexpress-media.com/kf/Sb630eac0ab1e46cc9528db5873035c6cQ.jpg"
+        "VAR_SHELL_GBC_CGS_CRYSTAL" = "https://ae-pic-a1.aliexpress-media.com/kf/Sc5180de63f7042578e9d4175085d4f54A.jpg"
+        "VAR_SHELL_GBC_CGS_FLUORESCENT" = "https://ae-pic-a1.aliexpress-media.com/kf/S45fcf079b88f4ae4a67c71f908936963d.jpg"
+        "VAR_SHELL_GBC_CGS_CLEAR_MATTE_BLACK" = "https://ae-pic-a1.aliexpress-media.com/kf/Sd14fa352e07c431d89cf1776b150b6bcj.jpg"
+        "VAR_SHELL_GBC_CGS_CLEAR_PURPLE" = "https://ae-pic-a1.aliexpress-media.com/kf/S0bbe09bb42a44cacbb8e1878966c2fe6B.jpg"
+        "VAR_SHELL_GBC_CGS_POKEMON_3RD" = "https://retrogamerepairshop.com/cdn/shop/files/GBCOrangePokemon_2048x2048.jpg"
+        "VAR_SHELL_GBC_EXR_CLEAR" = "https://www.extremerate.com/cdn/shop/files/QCBM5001_01.jpg"
+        "VAR_SHELL_GBC_EXR_CLEAR_RED" = "https://www.extremerate.com/cdn/shop/files/QCBM5002_01.jpg"
+        "VAR_SHELL_GBC_EXR_CLEAR_BLUE" = "https://www.extremerate.com/cdn/shop/files/QCBM5003_01.jpg"
+        "VAR_SHELL_GBC_EXR_CLEAR_PURPLE" = "https://www.extremerate.com/cdn/shop/files/QCBM5004_01.jpg"
+        "VAR_SHELL_GBC_EXR_CLEAR_GREEN" = "https://www.extremerate.com/cdn/shop/files/QCBM5005_01.jpg"
+        "VAR_SHELL_GBC_EXR_GLACIER_BLUE" = "https://www.extremerate.com/cdn/shop/files/QCBM5006_01.jpg"
+        "VAR_SHELL_GBC_EXR_BLACK" = "https://www.extremerate.com/cdn/shop/files/Black_01_1.jpg"
+        "VAR_SHELL_GBC_EXR_WHITE" = "https://www.extremerate.com/cdn/shop/files/White_01.jpg"
+        "VAR_SHELL_GBC_EXR_CLASSIC_GRAY" = "https://www.extremerate.com/cdn/shop/files/ClassicGray_01.jpg"
+        "VAR_SHELL_GBC_EXR_SCARLET_RED" = "https://www.extremerate.com/cdn/shop/files/ScarletRed_01.jpg"
+        "VAR_SHELL_GBC_EXR_CHERRY_PINK" = "https://www.extremerate.com/cdn/shop/files/CherryBlossomsPink_01.jpg"
+        "VAR_SHELL_GBC_EXR_CHAMELEON_PURPLE_BLUE" = "https://www.extremerate.com/cdn/shop/files/ChameleonPurpleBlue_01.jpg"
+        "VAR_SHELL_GBC_EXR_GLOW_GREEN" = "https://www.extremerate.com/cdn/shop/files/GlowGreen_01.jpg"
+        "VAR_SHELL_GBC_EXR_GLOW_BLUE" = "https://www.extremerate.com/cdn/shop/files/GlowBlue_01.jpg"
+        "VAR_SHELL_GBC_EXR_GREAT_WAVE" = "https://www.extremerate.com/cdn/shop/files/QCBT1006_01.jpg"
+        "VAR_SHELL_GBC_EXR_NES_CLASSIC" = "https://www.extremerate.com/cdn/shop/files/QCBT1037_01.jpg"
+        "VAR_SHELL_GBC_EXR_WOOD_GRAIN" = "https://www.extremerate.com/cdn/shop/files/QCBS2001_01.jpg"
+        "VAR_SHELL_GBC_HI_SAPPHIRE_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/S42720950ab5a415c85518fcdae72ec70w.jpg"
+        "VAR_SHELL_GBC_HI_DARK_GREEN" = "https://ae-pic-a1.aliexpress-media.com/kf/S92dd92518c4b49ba82a284fa9c41de049.jpg"
+        "VAR_SHELL_GBC_HI_GREEN" = "https://ae-pic-a1.aliexpress-media.com/kf/S863d4cf7554b4eb7b290fda77198f735Q.jpg"
+        "VAR_SHELL_GBC_HI_L_SAPPHIRE_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/S66bfb9f69c304b858ba08202439ae62dB.jpg"
+        "VAR_SHELL_GBC_HI_L_DARK_GREEN" = "https://ae-pic-a1.aliexpress-media.com/kf/S152e783650db44dd97a4e3319bb93c69S.jpg"
+        "VAR_SHELL_GBC_HI_L_DARK_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/Sced84ea98eda43d38d917de058b83aeaB.jpg"
+        "VAR_SHELL_GBC_HI_L_GREEN" = "https://ae-pic-a1.aliexpress-media.com/kf/S6c46573468794267a981351404d8b1aeQ.jpg"
+    }
+    "screens" = @{
+        "VAR_SCR_GBC_FP_RP20_BLACK" = "https://funnyplaying.com/cdn/shop/files/1_f780273e-5ee6-4a13-b8ac-f81b8a70e1ba.jpg"
+        "VAR_SCR_GBC_FP_RP20_WHITE" = "https://funnyplaying.com/cdn/shop/files/2_73b39f35-f7c3-43d7-b9df-9e6ac56fdb54.jpg"
+        "VAR_SCR_GBC_FP_RP20_GREY" = "https://funnyplaying.com/cdn/shop/files/4_810fbb4f-06cf-4a5b-a3d6-d5f08abdc04f.jpg"
+        "VAR_SCR_GBC_FP_RP20_PURPLE" = "https://funnyplaying.com/cdn/shop/files/8_99098f6e-dfdb-431a-90a1-cc6eb3ed5d7b.jpg"
+        "VAR_SCR_GBC_FP_RP20_BLUE" = "https://funnyplaying.com/cdn/shop/files/7_9de43419-68e5-4d22-bc80-5b3dfa37d4f9.jpg"
+        "VAR_SCR_GBC_FP_RP20_YELLOW" = "https://funnyplaying.com/cdn/shop/files/5_55b2dd9c-c6c3-4c7f-8f91-74d5b1b8b5a1.jpg"
+        "VAR_SCR_GBC_FP_RP20_GREEN" = "https://funnyplaying.com/cdn/shop/files/6_83b39f35-f7c3-43d7-b9df-9e6ac56fdb54.jpg"
+        "VAR_SCR_GBC_FP_RP20_RED" = "https://funnyplaying.com/cdn/shop/files/9_12b39f35-f7c3-43d7-b9df-9e6ac56fdb54.jpg"
+        "VAR_SCR_GBC_HI_Q5L_BLACK" = "https://ae-pic-a1.aliexpress-media.com/kf/S6c94e1f15fdd4d09a4bce3c4dfe82a4bx.jpg"
+        "VAR_SCR_GBC_HI_Q5L_WHITE" = "https://ae-pic-a1.aliexpress-media.com/kf/Sb9d6e1f15fdd4d09a4bce3c4dfe82a4bx.jpg"
+        "VAR_SCR_GBC_HI_245L_BLACK" = "https://ae-pic-a1.aliexpress-media.com/kf/S57e4ae93e8374952836f0c8ae0ad67f6u.jpg"
+        "VAR_SCR_GBC_CGS_278_DARK_GRAY" = "https://ae-pic-a1.aliexpress-media.com/kf/Sdcca6002c23f4dd9a0723e6ccd7aa5ddO.jpg"
+        "VAR_SCR_GBC_CGS_278_WHITE" = "https://ae-pic-a1.aliexpress-media.com/kf/S1884bda9195b44329d27f51db146fcab8.jpg"
+        "VAR_SCR_GBC_CGS_278_BLACK_NOLOGO" = "https://ae-pic-a1.aliexpress-media.com/kf/S14387f1fa50c42cf936e42417d18f4bfr.jpg"
+    }
+    "lenses" = @{
+        "VAR_LENS_GBC_STD_BLACK_NOLOGO" = "https://ae-pic-a1.aliexpress-media.com/kf/S6bd751b1e47b4453bdb6bfd48fe1ea71r.jpg"
+        "VAR_LENS_GBC_STD_BLACK" = "https://retrogamerepairshop.com/cdn/shop/products/c8877ca2-fdac-5891-9c9c-6c978b3c1511_ce921e30-31f0-44f9-aed1-0a95d890b0f5_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_WHITE" = "https://retrogamerepairshop.com/cdn/shop/products/f8b97da6-9dc9-576e-9f0f-8a1764b9927a_3daa5be2-93b2-4543-afe0-5b10bc931e7a_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_SAKURA" = "https://retrogamerepairshop.com/cdn/shop/products/SakuraRegular_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_SHINY" = "https://retrogamerepairshop.com/cdn/shop/products/ohfzShiny-glass-lens-for-GAMEBOY-COLOR-GAMEBOY-ADVANCE-GBC-GBA_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_SILVER" = "https://ae-pic-a1.aliexpress-media.com/kf/Sfd2b5b0c066741cfbca0288c043faf26r.jpg"
+        "VAR_LENS_GBC_STD_GREY" = "https://ae-pic-a1.aliexpress-media.com/kf/S881cf07b132349428dd64bb86be05a850.jpg"
+        "VAR_LENS_GBC_STD_PINK" = "https://ae-pic-a1.aliexpress-media.com/kf/Sa94aa2372c5b44fda35650d18d279888P.jpg"
+        "VAR_LENS_GBC_STD_MARIO_LUIGI" = "https://retrogamerepairshop.com/cdn/shop/products/a67cac3e-7fdb-5d93-93fc-2ab69899a97b_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_PIKA" = "https://retrogamerepairshop.com/cdn/shop/products/c63ff546-47e1-588d-ab60-659a68dc717e_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_BLACK_PMG" = "https://retrogamerepairshop.com/cdn/shop/products/75a40c26-730a-57cb-b9ad-ad081c4b65cb_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_WHITE_PMG" = "https://i.ebayimg.com/images/g/hv0AAOSwea9iqL~o/s-l1600.webp"
+        "VAR_LENS_GBC_STD_BLACK_3RD" = "https://retrogamerepairshop.com/cdn/shop/products/4d4f368c-18fc-5f1b-9eba-159990d6219e_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_WHITE_3RD" = "https://retrogamerepairshop.com/cdn/shop/products/variantimage0Glass-lens-mirror-for-Gameboy-color-GBC-GBC-LCD-screen-lens_2048x2048.jpg"
+        "VAR_LENS_GBC_STD_HORROR" = "https://www.coolspotgaming.co.uk/cdn/shop/files/GBCHorrorLens_1_copy_1024x1024.png"
+        "VAR_LENS_GBC_LRG_BLACK" = "https://ae-pic-a1.aliexpress-media.com/kf/S30761dacf3434faca561c8d01ae436ebp.jpg"
+        "VAR_LENS_GBC_LRG_BLACK_NOLOGO" = "https://ae-pic-a1.aliexpress-media.com/kf/S760bbfc3bd794abe8a0f048a32f1120am.jpg"
+        "VAR_LENS_GBC_LRG_BLUE" = "https://ae-pic-a1.aliexpress-media.com/kf/S2d8f1fe0ca694be899b5edcf543a0c581.jpg"
+        "VAR_LENS_GBC_LRG_CLARET" = "https://ae-pic-a1.aliexpress-media.com/kf/Sa519162fc62e41d39f8b13ba9d6733e1o.jpg"
+        "VAR_LENS_GBC_LRG_GOLD" = "https://ae-pic-a1.aliexpress-media.com/kf/S18f06ad520994138b565a5e6d8d40776x.jpg"
+        "VAR_LENS_GBC_LRG_SILVER" = "https://ae-pic-a1.aliexpress-media.com/kf/S700b5db6a5a04904a8e290738931fa96U.jpg"
+        "VAR_LENS_GBC_LRG_WHITE" = "https://ae-pic-a1.aliexpress-media.com/kf/S95568875beb1432798ae035cd24f26fa4.jpg"
+        "VAR_LENS_GBC_LRG_GREEN" = "https://ae-pic-a1.aliexpress-media.com/kf/S81ad7f053dd94df983b4b2b299f8d567L.jpg"
+        "VAR_LENS_GBC_LRG_HORROR" = "https://ae-pic-a1.aliexpress-media.com/kf/Sc8081e7f65184898bcfc6602a54b464b3.jpg"
+        "VAR_LENS_GBC_LRG_PINK" = "https://ae-pic-a1.aliexpress-media.com/kf/Sf878a2b017e348a68d998e01271adbbey.jpg"
+        "VAR_LENS_GBC_LRG_SHINY" = "https://ae-pic-a1.aliexpress-media.com/kf/S0ad6f2797cfc492e804bfe84dad67170c.jpg"
+        "VAR_LENS_GBC_LRG_GREY" = "https://ae-pic-a1.aliexpress-media.com/kf/S36189eaef8db4c7cabc439d4b1a692d0V.jpg"
+    }
+}
+
+foreach ($category in $images.Keys) {
+    $dir = "assets/images/$category"
+    if (!(Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force
+    }
+    
+    foreach ($id in $images[$category].Keys) {
+        $url = $images[$category][$id]
+        $ext = [System.IO.Path]::GetExtension($url)
+        if ($ext -match "\?") { $ext = $ext.Split("?")[0] }
+        if (!$ext) { $ext = ".jpg" } # Default to jpg
+        
+        $filename = "$id$ext"
+        $dest = "$dir/$filename"
+        
+        Write-Host "Downloading $url to $dest..."
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $dest -ErrorAction Stop
+        } catch {
+            Write-Warning "Failed to download $url"
+        }
+    }
+}

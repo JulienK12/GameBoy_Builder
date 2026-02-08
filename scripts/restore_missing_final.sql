@@ -1,0 +1,29 @@
+-- Restoration of missing shell variants from CSV
+INSERT INTO shell_variants (id, shell_id, name, supplement, color_hex, image_url) 
+VALUES ('VAR_SHELL_GBC_EXR_CLEAR_BLUE', 'SHELL_GBC_EXR', 'Transparent Clear Blue', 0, '', 'https://www.extremerate.com/cdn/shop/files/QCBM5003_01.jpg') 
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO shell_variants (id, shell_id, name, supplement, color_hex, image_url) 
+VALUES ('VAR_SHELL_GBC_EXR_CLEAR_GREEN', 'SHELL_GBC_EXR', 'Transparent Clear Green', 0, '', 'https://www.extremerate.com/cdn/shop/files/QCBM5005_01.jpg') 
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO shell_variants (id, shell_id, name, supplement, color_hex, image_url) 
+VALUES ('VAR_SHELL_GBC_EXR_GLOW_BLUE', 'SHELL_GBC_EXR', 'Glow in Dark Blue', 0, '', 'https://www.extremerate.com/cdn/shop/files/GlowBlue_01.jpg') 
+ON CONFLICT (id) DO NOTHING;
+
+-- Restoration of missing screen variants from CSV
+INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) 
+VALUES ('VAR_SCR_GBC_FP_RP20_PURPLE', 'SCR_GBC_FP_RP20', 'Laminated Purple', 0, 'https://funnyplaying.com/cdn/shop/files/8_99098f6e-dfdb-431a-90a1-cc6eb3ed5d7b.jpg') 
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) 
+VALUES ('VAR_SCR_GBC_HI_Q5L_BLACK', 'SCR_GBC_HI_Q5L', 'Black', 0, 'https://ae-pic-a1.aliexpress-media.com/kf/S6c94e1f15fdd4d09a4bce3c4dfe82a4bx.jpg') 
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) 
+VALUES ('VAR_SCR_GBC_HI_Q5L_WHITE', 'SCR_GBC_HI_Q5L', 'White', 0, 'https://ae-pic-a1.aliexpress-media.com/kf/Sb9d6e1f15fdd4d09a4bce3c4dfe82a4bx.jpg') 
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) 
+VALUES ('VAR_SCR_GBC_HI_245L_BLACK', 'SCR_GBC_HI_245L', 'Black', 0, 'https://ae-pic-a1.aliexpress-media.com/kf/S57e4ae93e8374952836f0c8ae0ad67f6u.jpg') 
+ON CONFLICT (id) DO NOTHING;

@@ -1,0 +1,11 @@
+﻿Compatibility;SHELL_GBC_OEM;SHELL_GBC_FP;SHELL_GBC_HI_L;SHELL_GBC_CGS_L;SHELL_GBC_CGS;SHELL_GBC_EXR;SHELL_GBC_HI
+SCR_GBC_OEM;Yes;No;No;No;Yes;Yes;Yes
+SCR_GBC_FP_RP20;Cut;Yes;Yes;Yes;Cut;Cut;No
+SCR_GBC_HI_Q5L;Cut;Yes;Yes;Yes;Cut;Cut;No
+SCR_GBC_HI_OLED;Cut;Yes;Yes;Yes;Cut;Cut;No
+SCR_GBC_CGS_278;Cut;Yes;Yes;Yes;No;Cut;No
+SCR_GBC_HI_245L;Cut;Yes;Yes;Yes;Yes;Cut;No
+SCR_GBC_HI_Q5;Cut;No;No;No;Cut;Cut;Cut
+SCR_GBC_HI_245;Yes;No;No;No;Yes;Yes;Yes
+SCR_GBC_CGS_26_IPS;Cut;No;No;Yes;No;Cut;No
+SCR_GBC_CGS_245_TFT;Yes;No;No;No;Yes;Yes;Yes

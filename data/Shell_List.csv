@@ -1,0 +1,8 @@
+﻿ID;Handled Model;Brand;Model Designation;Price;Mold
+SHELL_GBC_OEM;Gameboy Color;OEM;Original Shell (Used);20;OEMstandard
+SHELL_GBC_FP;Gameboy Color;FunnyPlaying;FunnyPlaying RetroPixel Laminated;20;LaminateReady
+SHELL_GBC_HI_L;Gameboy Color;Hispeedido;Hispeedido Aftermarket Laminated;10;LaminateReady
+SHELL_GBC_CGS_L;Gameboy Color;Cloud Game Store;CGS High Quality Shell Laminated;20;LaminateReady
+SHELL_GBC_CGS;Gameboy Color;Cloud Game Store;CGS High Quality Shell;20;IPSready
+SHELL_GBC_EXR;Gameboy Color;ExtremeRate;eXtremeRate Premium Shell;35;IPSready
+SHELL_GBC_HI;Gameboy Color;Hispeedido;Hispeedido Aftermarket;10;IPSready

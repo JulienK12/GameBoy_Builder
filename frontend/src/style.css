@@ -1,0 +1,434 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* ===== Neo-Retrowave Palette (Vibrant & High Contrast) ===== */
+  --color-neo-purple: #7C3AED;
+  --color-neo-purple-dark: #5B21B6;
+  --color-neo-orange: #FF6B35;
+  --color-neo-orange-light: #FF9F1C;
+  --color-neo-yellow: #FFCF00;
+
+  /* ===== Retro Cyan / Pink (Accents) ===== */
+  --color-neon-cyan: #00FFFF;
+  --color-neon-pink: #FF00FF;
+
+  /* ===== Neutral Dark Base (Deep Space) ===== */
+  --color-grey-ultra-dark: #050508;
+  --color-grey-dark: #0A0A14;
+  --color-grey-medium: #121225;
+
+  /* ===== Neo-Brutalist & Cyber Tokens ===== */
+  --border-width-neo: 1px;
+  /* Thinner for luxury feel */
+  --border-width-neo-thin: 1px;
+  --shadow-neo-hard: 0 0 15px rgba(0, 0, 0, 0.5);
+  --shadow-neo-hard-orange: 0 0 20px rgba(255, 107, 53, 0.2);
+  --shadow-neo-hard-purple: 0 0 20px rgba(124, 58, 237, 0.2);
+  --shadow-neo-glow-purple: 0 0 25px rgba(124, 58, 237, 0.5);
+  --shadow-neo-glow-orange: 0 0 25px rgba(255, 107, 53, 0.5);
+  --shadow-neon-cyan: 0 0 15px rgba(0, 255, 255, 0.4);
+
+  /* ===== Typography ===== */
+  --font-retro: "Press Start 2P", cursive;
+  --font-title: "Orbitron", sans-serif;
+  --font-body: "Outfit", sans-serif;
+  /* Cleaner but bold */
+}
+
+/* ===== Global Styles ===== */
+body {
+  @apply bg-grey-ultra-dark text-white antialiased;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 40%),
+    #050508;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* CRT Scanline Overlay */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 1000;
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+/* ===== Neo-Brutalist Containers ===== */
+.neo-container {
+  background: var(--color-grey-dark);
+  border: var(--border-width-neo) solid black;
+  box-shadow: var(--shadow-neo-hard);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.neo-card {
+  background: var(--color-grey-medium);
+  border: var(--border-width-neo-thin) solid black;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  transition: all 0.2s ease;
+}
+
+.neo-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  border-color: var(--color-neo-orange);
+}
+
+.neo-card.active {
+  border-color: var(--color-neo-orange);
+  background: linear-gradient(135deg, var(--color-grey-medium), rgba(255, 107, 53, 0.1));
+  box-shadow: 4px 4px 0px 0px var(--color-neo-orange);
+}
+
+/* ===== Interactive Elements ===== */
+.neo-btn {
+  @apply px-6 py-2 font-bold uppercase tracking-wider cursor-pointer;
+  background: var(--color-neo-purple);
+  border: var(--border-width-neo-thin) solid black;
+  box-shadow: 4px 4px 0px 0px black;
+  transition: all 0.1s active;
+}
+
+.neo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px black;
+  background: var(--color-neo-purple-dark);
+}
+
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px black;
+}
+
+/* ===== Adjusted Glass Effects (Premium Showroom) ===== */
+.glass-premium {
+  background: rgba(10, 10, 20, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Neon Borders ===== */
+.neon-border {
+  border: 1px solid var(--color-neo-purple);
+  box-shadow: var(--shadow-neo-glow-purple);
+  animation: neon-pulse-purple 2s ease-in-out infinite;
+}
+
+.neon-border-cyan {
+  border: 1px solid var(--color-neon-cyan);
+  box-shadow: var(--shadow-neon-cyan);
+}
+
+/* ===== Buttons Premium ===== */
+.btn-primary {
+  @apply px-6 py-3 text-white font-semibold rounded-lg cursor-pointer relative overflow-hidden;
+  background: linear-gradient(135deg, var(--color-atomic-purple), var(--color-atomic-purple-dark));
+  box-shadow: var(--glow-purple);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-title);
+  letter-spacing: 0.05em;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #7c3aed, var(--color-atomic-purple-ultra));
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.8);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ===== Selector Cards (Enhanced) ===== */
+.selector-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  min-height: 44px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.selector-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.selector-card:hover {
+  border-color: var(--color-retro-cyan);
+  box-shadow: var(--glow-cyan);
+  background: rgba(0, 229, 255, 0.08);
+  transform: translateY(-3px) scale(1.01);
+}
+
+.selector-card:hover::after {
+  opacity: 1;
+}
+
+.selector-card.active {
+  border-color: var(--color-atomic-purple) !important;
+  box-shadow: var(--glow-purple);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.08));
+  transform: translateY(-2px);
+}
+
+.selector-card.active::after {
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.2), transparent 70%);
+  opacity: 1;
+}
+
+/* ===== Typography Classes ===== */
+.font-retro {
+  font-family: var(--font-retro);
+  text-shadow: 2px 2px 0px black;
+}
+
+.font-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.text-neo-orange {
+  color: var(--color-neo-orange);
+  text-shadow: 2px 2px 0px black;
+}
+
+.text-neo-purple {
+  color: var(--color-neo-purple);
+  text-shadow: 2px 2px 0px black;
+}
+
+/* ===== Micro Animations ===== */
+@keyframes neon-pulse-purple {
+
+  0%,
+  100% {
+    box-shadow: var(--shadow-neo-glow-purple);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
+  }
+}
+
+@keyframes neon-pulse-orange {
+
+  0%,
+  100% {
+    box-shadow: var(--shadow-neo-glow-orange);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(255, 107, 53, 0.6);
+  }
+}
+
+.animate-pulse-purple {
+  animation: neon-pulse-purple 2s infinite;
+}
+
+.animate-pulse-orange {
+  animation: neon-pulse-orange 2s infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+.animate-float-neo {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.scanline::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 255, 255, 0.1);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-rotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ===== Utility Animation Classes ===== */
+.animate-shimmer {
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Skeleton Loader ===== */
+.skeleton {
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-grey-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-atomic-purple), var(--color-atomic-purple-dark));
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-atomic-purple-light), var(--color-atomic-purple));
+}
+
+/* ===== Selection Styling ===== */
+::selection {
+  background: rgba(139, 92, 246, 0.3);
+  color: white;
+}
+
+::-moz-selection {
+  background: rgba(139, 92, 246, 0.3);
+  color: white;
+}

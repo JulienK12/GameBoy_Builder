@@ -1,0 +1,11 @@
+﻿ID;Handled Model;Brand;Model Designation;Price;Screen Size Category;Assembly
+SCR_GBC_OEM;Gameboy Color;OEM;Original LCD Screen;0;Standard;Component
+SCR_GBC_FP_RP20;Gameboy Color;FunnyPlaying;FunnyPlaying Retro Pixel 2.0 IPS Laminated;70;Large;Laminated
+SCR_GBC_HI_Q5L;Gameboy Color;Hispeedido;Hispeedido Q5 IPS Laminated;70;Large;Laminated
+SCR_GBC_HI_OLED;Gameboy Color;Hispeedido;Hispeedido Q5 OLED Laminated;70;Large;Laminated
+SCR_GBC_CGS_278;Gameboy Color;Cloud Game Store;CGS 2.78 LCD Half Reflection Half Transmission Screen;70;Large;Laminated
+SCR_GBC_HI_245L;Gameboy Color;Hispeedido;Hispeedido IPS 2.45 Drop-in Laminated ;70;Standard;Laminated
+SCR_GBC_HI_Q5;Gameboy Color;Hispeedido;Hispeedido Q5 IPS;70;Large;Component
+SCR_GBC_HI_245;Gameboy Color;Hispeedido;Hispeedido IPS 2.45 Drop-in;65;Standard;Component
+SCR_GBC_CGS_26_IPS;Gameboy Color;Cloud Game Store;CGS 2.6 IPS;65;Large;Component
+SCR_GBC_CGS_245_TFT;Gameboy Color;Cloud Game Store;CGS 2.45 TFT;60;Standard;Component
