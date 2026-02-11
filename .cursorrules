@@ -1,0 +1,34 @@
+# BMAD Workflow Rules
+
+Ce projet utilise BMAD (Brownfield Method) pour la gestion de workflow et le développement assisté par IA.
+
+## Commandes BMAD Disponibles
+
+Toutes les commandes BMAD sont disponibles via le préfixe `/bmad:`. Consultez `.cursor/AGENTS.md` pour la liste complète.
+
+### Commandes les plus utilisées :
+
+**Agents :**
+- `/bmad:bmm:agents:dev` - Activer l'agent développeur
+- `/bmad:bmm:agents:pm` - Activer l'agent product manager
+- `/bmad:bmm:agents:architect` - Activer l'agent architecte
+- `/bmad:bmm:agents:sm` - Activer l'agent scrum master
+
+**Workflows :**
+- `/bmad:bmm:workflows:workflow-status` - Vérifier le statut actuel
+- `/bmad:bmm:workflows:dev-story` - Développer une story complète
+- `/bmad:bmm:workflows:sprint-planning` - Planifier un sprint
+- `/bmad:bmm:workflows:code-review` - Faire une review de code
+
+## Structure du Projet
+
+- `_bmad/` - Fichiers BMAD (core, workflows, agents)
+- `_bmad-output/` - Outputs générés par BMAD
+- `.agent/workflows/bmad/` - Commandes d'activation des workflows
+
+## Instructions pour l'IA
+
+Quand un utilisateur utilise une commande BMAD (commençant par `/bmad:`), chargez et exécutez le fichier correspondant dans `.agent/workflows/bmad/` ou `.agent/workflows/bmad/` selon le type de commande.
+
+Pour les agents, chargez le fichier agent correspondant et suivez les instructions d'activation.
+Pour les workflows, chargez le workflow.xml core et le fichier de configuration du workflow spécifique.
