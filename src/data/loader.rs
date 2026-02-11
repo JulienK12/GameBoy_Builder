@@ -10,7 +10,7 @@ use csv::ReaderBuilder;
 
 use crate::models::{
     Shell, ShellVariant, Screen, ScreenVariant, 
-    Lens, LensVariant, CompatibilityStatus
+    Lens, LensVariant, CompatibilityStatus, Pack
 };
 use super::records::*;
 use super::parser::*;
@@ -28,6 +28,8 @@ pub struct Catalog {
     pub lenses: Vec<Lens>,
     pub lens_variants: Vec<LensVariant>,
     pub compatibility_matrix: HashMap<(String, String), CompatibilityStatus>,
+    pub packs: Vec<Pack>,
+    pub expert_mods: Vec<crate::models::ExpertMod>,
 }
 
 // ========================================
@@ -239,5 +241,7 @@ pub fn load_catalog() -> Result<Catalog, Box<dyn Error>> {
         lenses,
         lens_variants,
         compatibility_matrix,
+        packs: Vec::new(), // Les packs ne sont chargés que depuis PostgreSQL
+        expert_mods: Vec::new(), // Les mods expert sont chargés depuis PostgreSQL
     })
 }

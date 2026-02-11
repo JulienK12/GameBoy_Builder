@@ -27,6 +27,7 @@ pub struct ShellRecord {
 
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ShellVariantRecord {
     #[serde(rename = "Variant_ID")]
     pub variant_id: String,
@@ -69,6 +70,7 @@ pub struct ScreenRecord {
 
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct ScreenVariantRecord {
     #[serde(rename = "Variant_ID")]
     pub variant_id: String,
@@ -101,6 +103,7 @@ pub struct LensRecord {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct LensVariantRecord {
     #[serde(rename = "Variant_ID")]
     pub variant_id: String,
@@ -121,6 +124,7 @@ pub struct LensVariantRecord {
 // ========================================
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CompatibilityRecord {
     #[serde(rename = "Screen_ID")]
     pub screen_id: String,

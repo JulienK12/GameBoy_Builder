@@ -43,6 +43,7 @@ function handleInfoClick(e) {
     v-if="viewMode === 'grid'"
     class="relative group cursor-pointer transition-all duration-200 flex flex-col h-full"
     :class="cardClasses"
+    :data-variant-id="variant.id"
     @click="emit('select', variant)"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
@@ -110,6 +111,7 @@ function handleInfoClick(e) {
     v-else-if="viewMode === 'mobile'"
     class="relative w-[100px] h-[100px] shrink-0 cursor-pointer overflow-hidden rounded-xl border border-white/5 transition-all active:scale-95"
     :class="cardClasses"
+    :data-variant-id="variant.id"
     @click="emit('select', variant)"
   >
      <!-- Background hue -->
@@ -155,6 +157,7 @@ function handleInfoClick(e) {
     v-else
     class="relative group cursor-pointer transition-all duration-200 flex items-center p-3 gap-4 glass-card hover:bg-white/5"
     :class="cardClasses"
+    :data-variant-id="variant.id"
     @click="emit('select', variant)"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"

@@ -7,7 +7,7 @@ use sqlx::PgPool;
 use std::collections::HashMap;
 use crate::models::{
     Shell, ShellVariant, Screen, ScreenVariant,
-    Lens, LensVariant, CompatibilityStatus
+    Lens, LensVariant, CompatibilityStatus, Pack, ExpertMod,
 };
 use super::Catalog;
 
@@ -62,6 +62,18 @@ pub async fn load_catalog_from_db(pool: &PgPool) -> Result<Catalog, sqlx::Error>
     }
     println!("   ✅ {} règles de compatibilité chargées", compatibility_matrix.len());
 
+    // Charger les packs
+    let packs: Vec<Pack> = sqlx::query_as("SELECT * FROM packs ORDER BY sort_order")
+        .fetch_all(pool)
+        .await?;
+    println!("   ✅ {} packs chargés", packs.len());
+
+    // Charger les mods expert
+    let expert_mods: Vec<ExpertMod> = sqlx::query_as("SELECT * FROM expert_mods ORDER BY category, id")
+        .fetch_all(pool)
+        .await?;
+    println!("   ✅ {} mods expert chargés", expert_mods.len());
+
     Ok(Catalog {
         shells,
         shell_variants,
@@ -70,5 +82,7 @@ pub async fn load_catalog_from_db(pool: &PgPool) -> Result<Catalog, sqlx::Error>
         lenses,
         lens_variants,
         compatibility_matrix,
+        packs,
+        expert_mods,
     })
 }

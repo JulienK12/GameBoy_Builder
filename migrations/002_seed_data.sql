@@ -9,7 +9,8 @@ INSERT INTO shells (id, handled_model, brand, name, price, mold) VALUES
 ('SHELL_GBC_CGS_L', 'Gameboy Color', 'CloudGameStore', 'CGS High Quality Shell Laminated', 20.0, 'LaminatedReady'),
 ('SHELL_GBC_CGS', 'Gameboy Color', 'CloudGameStore', 'CGS High Quality Shell', 20.0, 'IpsReady'),
 ('SHELL_GBC_EXR', 'Gameboy Color', 'ExtremeRate', 'eXtremeRate Premium Shell', 35.0, 'IpsReady'),
-('SHELL_GBC_HI', 'Gameboy Color', 'Hispeedido', 'Hispeedido Aftermarket', 10.0, 'IpsReady');
+('SHELL_GBC_HI', 'Gameboy Color', 'Hispeedido', 'Hispeedido Aftermarket', 10.0, 'IpsReady')
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO shell_variants (id, shell_id, name, supplement, color_hex, image_url, is_transparent) VALUES
 -- OEM Shells (no images)
@@ -91,7 +92,8 @@ INSERT INTO shell_variants (id, shell_id, name, supplement, color_hex, image_url
 ('VAR_SHELL_GBC_HI_L_SAPPHIRE_BLUE', 'SHELL_GBC_HI_L', 'Sapphire Blue', 0.0, '#0F52BA', '/images/shells/VAR_SHELL_GBC_HI_L_SAPPHIRE_BLUE.jpg', TRUE),
 ('VAR_SHELL_GBC_HI_L_DARK_GREEN', 'SHELL_GBC_HI_L', 'Dark Green', 0.0, '#013220', '/images/shells/VAR_SHELL_GBC_HI_L_DARK_GREEN.jpg', FALSE),
 ('VAR_SHELL_GBC_HI_L_DARK_BLUE', 'SHELL_GBC_HI_L', 'Dark Blue', 0.0, '#00008B', '/images/shells/VAR_SHELL_GBC_HI_L_DARK_BLUE.jpg', FALSE),
-('VAR_SHELL_GBC_HI_L_GREEN', 'SHELL_GBC_HI_L', 'Green', 0.0, '#228B22', '/images/shells/VAR_SHELL_GBC_HI_L_GREEN.jpg', FALSE);
+('VAR_SHELL_GBC_HI_L_GREEN', 'SHELL_GBC_HI_L', 'Green', 0.0, '#228B22', '/images/shells/VAR_SHELL_GBC_HI_L_GREEN.jpg', FALSE)
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- 📺 SEED DATA - SCREENS
@@ -107,7 +109,8 @@ INSERT INTO screens (id, handled_model, brand, name, price, size, assembly) VALU
 ('SCR_GBC_HI_Q5', 'Gameboy Color', 'Hispeedido', 'Hispeedido Q5 IPS', 70.0, 'Large', 'Component'),
 ('SCR_GBC_HI_245', 'Gameboy Color', 'Hispeedido', 'Hispeedido IPS 2.45 Drop-in', 65.0, 'Standard', 'Component'),
 ('SCR_GBC_CGS_26_IPS', 'Gameboy Color', 'CloudGameStore', 'CGS 2.6 IPS', 65.0, 'Large', 'Component'),
-('SCR_GBC_CGS_245_TFT', 'Gameboy Color', 'CloudGameStore', 'CGS 2.45 TFT', 60.0, 'Standard', 'Component');
+('SCR_GBC_CGS_245_TFT', 'Gameboy Color', 'CloudGameStore', 'CGS 2.45 TFT', 60.0, 'Standard', 'Component')
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) VALUES
 ('VAR_SCR_GBC_FP_RP20_BLACK', 'SCR_GBC_FP_RP20', 'Black', 0.0, '/images/screens/VAR_SCR_GBC_FP_RP20_BLACK.jpg'),
@@ -124,7 +127,8 @@ INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) VALUES
 ('VAR_SCR_GBC_CGS_278_DARK_GRAY', 'SCR_GBC_CGS_278', 'Dark Gray', 0.0, '/images/screens/VAR_SCR_GBC_CGS_278_DARK_GRAY.jpg'),
 ('VAR_SCR_GBC_CGS_278_WHITE', 'SCR_GBC_CGS_278', 'White', 0.0, '/images/screens/VAR_SCR_GBC_CGS_278_WHITE.jpg'),
 ('VAR_SCR_GBC_CGS_278_BLACK_NOLOGO', 'SCR_GBC_CGS_278', 'Black (No Logo)', 0.0, '/images/screens/VAR_SCR_GBC_CGS_278_BLACK_NOLOGO.jpg'),
-('VAR_SCR_GBC_OEM_DEFAULT', 'SCR_GBC_OEM', 'Écran OEM Original', 0.0, '/images/screens/VAR_SCR_GBC_OEM_DEFAULT.jpg');
+('VAR_SCR_GBC_OEM_DEFAULT', 'SCR_GBC_OEM', 'Écran OEM Original', 0.0, '/images/screens/VAR_SCR_GBC_OEM_DEFAULT.jpg')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- 🔍 SEED DATA - LENSES
@@ -132,7 +136,8 @@ INSERT INTO screen_variants (id, screen_id, name, supplement, image_url) VALUES
 
 INSERT INTO lenses (id, name, price, size) VALUES
 ('LENS_GBC_STD_GLASS', 'Vitre Verre Standard 2.45"', 5.0, 'Standard'),
-('LENS_GBC_LRG_GLASS', 'Vitre Verre Large 2.6"', 5.0, 'Large');
+('LENS_GBC_LRG_GLASS', 'Vitre Verre Large 2.6"', 5.0, 'Large')
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO lens_variants (id, lens_id, name, supplement, image_url) VALUES
 -- Standard Lenses
@@ -163,7 +168,8 @@ INSERT INTO lens_variants (id, lens_id, name, supplement, image_url) VALUES
 ('VAR_LENS_GBC_LRG_HORROR', 'LENS_GBC_LRG_GLASS', 'Horror', 0.0, '/images/lenses/VAR_LENS_GBC_LRG_HORROR.jpg'),
 ('VAR_LENS_GBC_LRG_PINK', 'LENS_GBC_LRG_GLASS', 'Pink', 0.0, '/images/lenses/VAR_LENS_GBC_LRG_PINK.jpg'),
 ('VAR_LENS_GBC_LRG_SHINY', 'LENS_GBC_LRG_GLASS', 'Shiny', 0.0, '/images/lenses/VAR_LENS_GBC_LRG_SHINY.jpg'),
-('VAR_LENS_GBC_LRG_GREY', 'LENS_GBC_LRG_GLASS', 'Grey', 0.0, '/images/lenses/VAR_LENS_GBC_LRG_GREY.jpg');
+('VAR_LENS_GBC_LRG_GREY', 'LENS_GBC_LRG_GLASS', 'Grey', 0.0, '/images/lenses/VAR_LENS_GBC_LRG_GREY.jpg')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- 🔀 SEED DATA - COMPATIBILITY
@@ -239,4 +245,5 @@ INSERT INTO shell_screen_compatibility (screen_id, shell_id, status) VALUES
 ('SCR_GBC_CGS_245_TFT', 'SHELL_GBC_CGS_L', 'No'),
 ('SCR_GBC_CGS_245_TFT', 'SHELL_GBC_CGS', 'Yes'),
 ('SCR_GBC_CGS_245_TFT', 'SHELL_GBC_EXR', 'Yes'),
-('SCR_GBC_CGS_245_TFT', 'SHELL_GBC_HI', 'Yes');
+('SCR_GBC_CGS_245_TFT', 'SHELL_GBC_HI', 'Yes')
+ON CONFLICT (screen_id, shell_id) DO NOTHING;

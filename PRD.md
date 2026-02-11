@@ -1,104 +1,78 @@
-# 📜 PRD v6.0 : Game Boy Color Configurator
+# 📜 PRD v7.0 : Game Boy Evolution (Codename: Rayboy Next)
 
 ---
 
 ## 1. Contexte & Objectif
 
-Développement d'un configurateur de Game Boy Color personnalisée (Rayboy).
+Évolution du configurateur Rayboy vers une expérience multi-console simplifiée et esthétiquement radicale.
 
-**Objectifs :**
-- **Pédagogique :** Maîtriser Rust (Backend) et l'intégration 3D Web (Frontend).
-- **Fonctionnel :** Générer un devis en temps réel basé sur les choix utilisateur.
-- **Production :** Interface 3D "Wow" avec back-office solide (PostgreSQL).
-
-**✅ Backend TERMINÉ | ✅ Frontend TERMINÉ (V1.0 Launch)**
+**Objectifs de la V2.0 :**
+- **Démystification** : Passer d'un sélecteur technique à des "Starter Kits" (Packs) émotionnels.
+- **Persistance** : Introduction du système de "Deck" pour gérer plusieurs consoles simultanément.
+- **Immersion** : Esthétique Cyberpunk haute-lisibilité avec micro-interactions "plaisir".
 
 ---
 
-## 2. 🚀 GUIDE DE DÉMARRAGE
+## 2. 🎯 Nouvelles Fonctionnalités (V2.0 Core)
 
-### 2.1 Pré-requis
-- **Rust** (Dernière version stable)
-- **Node.js** (v18+) & **npm**
-- **PostgreSQL** (Service actif sur port 5432)
+### 📦 Le Système de "Packs" (Simplified Mode)
+- **Concept** : Proposer 3 profils types pour un démarrage instantané.
+    - **Budget Pack** : Coque OEM + Écran rétroéclairé classique (Priorité prix).
+    - **Performance Pack** : Écran IPS v3 + Coque personnalisée + Batterie Li-Po (Priorité technique).
+    - **Purist Pack** : Restauration fidèle, composants premium (Priorité authenticité).
+- **UX** : Divulgation progressive.
+- **Switch Mode** : Un **Toggle "Expert Mode"** est accessible à tout moment. Son activation affiche la galerie complète et les filtres avancés (V1.0 style) pour une personnalisation totale, sans perdre la configuration du pack sélectionné.
 
-### 2.2 Démarrer le Projet
-1.  **Backend** :
-    ```powershell
-    cargo run
-    ```
-2.  **Frontend** :
-    ```powershell
-    cd frontend
-    npm run dev
-    ```
-    *Application : `http://localhost:5173` | API : `http://localhost:3000`*
+### 🃏 Le Système de "Deck" (Multi-Console)
+- **Gestionnaire de Panier** : Visualisation sous forme de cartes (une carte = une console configurée).
+- **Persistance** : Panier sauvegardé via `localStorage` (invité) et synchronisé PostgreSQL (login).
 
----
-
-## 3. Architecture Globale
-
-```
-┌─────────────────┐       HTTP REST       ┌─────────────────┐       ┌──────────────┐
-│   FRONTEND      │◄─────────────────────►│   BACKEND       │◄─────►│  PostgreSQL  │
-│   Vue.js 3      │   JSON (Axum)         │   Rust (Axum)   │       │   Database   │
-│   + TresJS      │                       │   + SQLx        │       │              │
-├─────────────────┤                       ├─────────────────┤       ├──────────────┤
-│ • Affiche 3D    │                       │ • Calcule prix  │       │ • 74 Coques  │
-│ • Retro-Premium │                       │ • Valide règles │       │ • 16 Écrans  │
-│ • UI/UX Glass   │   /assets/images/     │ • Sert images   │       │ • 27 Vitres  │
-│ • Filtres Avancés│◄─────────────────────►│   statiques     │       │ • 70 Règles  │
-└─────────────────┘                       └─────────────────┘       └──────────────┘
-```
+### ⚡ UI/UX "Cyberpunk-Accessible"
+- **Palette** : Fond noir/bleu nuit profond, accents Néon (Orange, Violet, Émeraude).
+- **Lisibilité** : Ratio de contraste WCAG AA impératif.
+- **Fidélité 3D** : Utilisation de modèles compressés Draco pour une fluidité totale sur mobile.
 
 ---
 
-## 4. Fonctionnalités Implémentées (V1.0)
+## 3. Architecture Évoluée
 
-### 🎨 Interface Utilisateur (Frontend)
-- **Design System** : Style "Glassmorphism" retro-futuriste (TailwindCSS v4).
-- **Navigation** : Sidebar latérale avec catégories (Coque, Écran, Boutons, Vitre).
-- **Galerie Filtrable** :
-    - Filtres par Marque (FunnyPlaying, Hispeedido, etc.).
-    - Filtres par Type (Laminé, OEM, IPS Ready).
-    - Info-bulles riches au survol (Détails, Prix).
-- **Visualisation 3D** :
-    - Rendu temps réel via **TresJS** (Three.js pour Vue).
-    - Chargement de modèles GLB optimisés.
-- **Devis Temps Réel** :
-    - Calcul immédiat du prix total.
-    - Gestion des conflits (Incompatibilité Coque/Écran).
-
-### ⚙️ Backend & Data
-- **API Robuste** : Rust (Axum) avec gestion d'erreurs typée.
-- **Catalogue Dynamique** : Données chargées depuis PostgreSQL.
-- **Compatibilité** : Moteur de règles vérifiant les combinaisons interdites (ex: Écran Laminé sur Coque OEM).
+- **Frontend** : Vue 3 + Pinia + TresJS + Vite.
+- **Backend** : Rust (Axum) + SQLx (PostgreSQL).
+- **Patterns** : 
+    - **Single Source of Truth** : Le backend recalcule systématiquement les prix et valide les compatibilités.
+    - **Optimistic Updates** : UI fluide avec rollback automatique en cas d'erreur API.
+    - **Draco Compression** : 3D haute performance.
 
 ---
 
-## 5. État d'Avancement
+## 4. Roadmap d'Implémentation
 
-| Phase | Objectif | Status | Détails |
-|:------|:---------|:-------|:--------|
-| **Backend**| API & DB | ✅ Terminé | Axum, PostgreSQL, Logic de calcul 100% opérationnels. |
-| **Frontend**| Structure | ✅ Terminé | Vite, Vue 3, Tailwind, TresJS. |
-| **Frontend**| Composants | ✅ Terminé | Sélecteurs riches, Galerie, Tooltips, Modales. |
-| **Frontend**| 3D | ✅ Terminé | Intégration GLB, mappage textures/couleurs. |
-| **Integration**| API connect | ✅ Terminé | Catalogue dynamique synchronisé. |
-| **Polish**| UX/UI | ✅ Terminé | Filtres, Animations, Responsive Design. |
-| **QA**| Tests | ✅ Terminé | Tests Playwright (Audit UI) en place. |
+### Sprint 1 : Fondations & Persistance
+- Mise en place du schéma DB pour le mode "Deck".
+- API de synchronisation du panier (Guest vs Auth).
+- Refonte du moteur de prix côté Rust.
+
+### Sprint 2 : Le "Deck" UI
+- Création du layout "Card-based" pour le multi-console.
+- Intégration de `pinia-plugin-persistedstate`.
+
+### Sprint 3 : Starter Kits & UX
+- Implémentation de la logique de "Packs".
+- Refonte UI Cyberpunk (Contrasts & Glow).
+
+### Sprint 4 : QA & Performance
+- Tests de régression visuelle (Playwright).
+- Optimisation CDN et compression Draco.
 
 ---
 
-## 6. Changelog
+## 5. Changelog
 
 | Version | Date | Modifications |
 |:--------|:-----|:--------------|
-| v4.0 | 31 Jan 2026 | Backend PRODUCTION Ready (Axum + PostgreSQL). |
-| v5.0 | 31 Jan 2026 | Init Phase E : Plan Frontend intégré. |
-| v5.3 | 03 Fév 2026 | Restauration catalogue, debug CSS. |
-| **v6.0** | **08 Fév 2026** | **Lancement V1.0 - UI Complète, Filtres, 3D, Tests Playwright.** |
+| v6.0 | 08 Fév 2026 | Lancement V1.0 - UI Complète, Filtres, 3D. |
+| **v7.0** | **11 Fév 2026** | **Evolution V2.0 : Packs, Deck System, Architecture Cyberpunk.** |
 
 ---
 
-**🦀 Rayboy PRD v6.0 — LAUNCH READY**
+**🦀 Rayboy PRD v7.0 — NEXT GEN PLANNING**

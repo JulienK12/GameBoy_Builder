@@ -18,34 +18,45 @@ async fn main() {
     println!("║       🎮 GAMEBOY COLOR CONFIGURATOR API 🎮              ║");
     println!("╚══════════════════════════════════════════════════════════╝\n");
 
+    dotenvy::dotenv().ok();
+
     // 1. Connexion à PostgreSQL
     let pool = data::create_pool().await
         .expect("❌ Impossible de se connecter à PostgreSQL");
 
-    // 2. Charger le catalogue depuis la DB
+    // 2. Appliquer les migrations
+    println!("📂 Application des migrations...");
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("❌ Échec des migrations");
+
+    // 3. Charger le catalogue depuis la DB
     println!("📦 Chargement du catalogue depuis PostgreSQL...");
     let catalog = match data::load_catalog_from_db(&pool).await {
-        Ok(c) => {
-            Arc::new(c)
-        }
+        Ok(c) => Arc::new(c),
         Err(e) => {
             eprintln!("❌ Erreur au chargement du catalogue : {}", e);
             return;
         }
     };
 
-    // 2. Configurer CORS (pour le frontend)
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
+    let state = Arc::new(api::AppState { catalog, pool });
 
-    // 3. Créer le routeur
-    let app = api::create_router(catalog)
+    // 4. CORS : credentials pour cookies, origine explicite (pas *)
+    let cors_origin = std::env::var("CORS_ORIGIN").unwrap_or_else(|_| "http://127.0.0.1:5173".to_string());
+    let cors = CorsLayer::new()
+        .allow_origin(cors_origin.parse::<axum::http::HeaderValue>().expect("CORS_ORIGIN invalide"))
+        .allow_methods(Any)
+        .allow_headers(Any)
+        .allow_credentials(true);
+
+    // 5. Créer le routeur
+    let app = api::create_router(state)
         .nest_service("/assets", ServeDir::new("assets"))
         .layer(cors);
 
-    // 4. Démarrer le serveur
+    // 6. Démarrer le serveur
     let addr = "0.0.0.0:3000";
     println!("\n🚀 Serveur démarré sur http://{}", addr);
     println!("   📍 GET  /health          → Vérifier que ça tourne");
@@ -53,6 +64,11 @@ async fn main() {
     println!("   📍 GET  /catalog/shells  → Liste des coques");
     println!("   📍 GET  /catalog/screens → Liste des écrans");
     println!("   📍 GET  /catalog/lenses  → Liste des vitres");
+    println!("   📍 GET  /catalog/packs   → Liste des packs");
+    println!("   📍 POST /auth/register   → Inscription");
+    println!("   📍 POST /auth/login      → Connexion");
+    println!("   📍 POST /auth/logout     → Déconnexion");
+    println!("   📍 GET  /auth/me         → Utilisateur connecté");
     println!("\n⏳ En attente de requêtes... (Ctrl+C pour arrêter)\n");
 
     let listener = TcpListener::bind(addr).await.unwrap();

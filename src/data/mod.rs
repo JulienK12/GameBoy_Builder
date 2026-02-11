@@ -9,6 +9,8 @@ pub mod loader;
 pub mod catalog;
 pub mod database;
 pub mod pg_loader;
+pub mod auth_repo;
+pub mod deck_repo;
 
 // Ré-export pour simplifier
 pub use loader::{Catalog, load_catalog};

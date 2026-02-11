@@ -1,18 +1,30 @@
-```javascript
 <script setup>
 import { Suspense, onMounted, ref, computed } from 'vue';
 import { useConfiguratorStore } from '@/stores/configurator';
+import { useDeckStore } from '@/stores/deck';
 import ThreeDPreview from '@/components/3D/ThreeDPreview.vue';
 import VariantGallery from '@/components/VariantGallery.vue';
 import QuoteDisplay from '@/components/QuoteDisplay.vue';
 import ModelMapper from '@/components/3D/ModelMapper.vue';
 import SelectionRecap from '@/components/SelectionRecap.vue';
+import LandingPortal from '@/components/LandingPortal.vue';
+import ExpertSidebar from '@/components/ExpertSidebar.vue';
+import DeckManager from '@/components/DeckManager.vue';
+import GlitchEffect from '@/components/GlitchEffect.vue';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 // import DebugOverlay from '@/components/DebugOverlay.vue'; // Disabled for production
 
 const store = useConfiguratorStore();
 const isQuoteOpen = ref(true); // Open by default on desktop
 const isShowroomMode = ref(false);
 const isMappingMode = ref(false);
+const currentVerifyIdx = ref(-1);
+const showDeckManager = ref(false);
 
 // Shortcut for mapping mode: Shift + M
 onMounted(() => {
@@ -34,10 +46,11 @@ function toggleShowroom() {
   if (isShowroomMode.value) isQuoteOpen.value = false;
 }
 
-// Charger le catalogue au démarrage
+// Charger le catalogue et le deck (cloud si connecté) au démarrage
 onMounted(() => {
   store.fetchCatalog();
-  
+  useDeckStore().loadFromCloud();
+
   // Auto-close quote on mobile initially
   if (window.innerWidth < 1024) {
     isQuoteOpen.value = false;
@@ -69,15 +82,30 @@ onMounted(() => {
 
 <template>
   <div class="h-[100dvh] w-full max-w-[100vw] bg-grey-ultra-dark overflow-hidden relative selection:bg-neo-orange/30">
+    <!-- Effet Glitch global (Story 2.3 - erreurs validation expert) -->
+    <GlitchEffect :trigger="store.glitchTrigger" />
+    <!-- LandingPortal -->
+    <LandingPortal v-if="store.showLandingPortal" />
+
     <!-- <DebugOverlay /> -->
     
     <!-- 3D Mapper Tool (Temporary) -->
     <ModelMapper v-if="isMappingMode" />
 
-    <!-- 1. BACKGROUND: MASSIVE 3D STAGE (The "Hero") -->
+    <!-- Mon Deck (Story 3.1) — au-dessus du header (z-50) pour être cliquable -->
+    <div class="absolute top-6 left-6 z-50 pointer-events-auto">
+      <button
+        @click="showDeckManager = true"
+        class="px-4 py-2 glass-premium rounded-full border border-white/20 text-[8px] font-retro tracking-widest transition-all duration-300 hover:border-neo-purple/50 hover:text-white"
+        :class="showDeckManager ? 'border-neo-purple text-white shadow-neo-glow-purple' : 'text-white/60'"
+        aria-label="Ouvrir le Deck Manager"
+      >
+        MON_DECK
+      </button>
+    </div>
+
     <!-- 1. BACKGROUND: MASSIVE 3D STAGE (The "Hero") -->
     <main class="absolute inset-0 z-0 bg-black group overflow-hidden flex flex-col justify-center items-center">
-        
        <!-- Toggle 3D/Recap Button -->
        <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 p-1 bg-white/10 backdrop-blur-md rounded-full border border-white/5 pointer-events-auto">
           <button 
@@ -95,6 +123,33 @@ onMounted(() => {
              RECAP_VIEW
           </button>
        </div>
+
+       <!-- Expert Mode Toggle -->
+       <TooltipProvider>
+         <Tooltip>
+           <TooltipTrigger as-child>
+             <button 
+               @click="store.toggleExpertMode()"
+               @keydown.enter.prevent="store.toggleExpertMode()"
+               @keydown.space.prevent="store.toggleExpertMode()"
+               class="absolute top-6 right-6 z-50 px-4 py-2 glass-premium rounded-full border text-[8px] font-retro tracking-widest transition-all duration-300 hover:shadow-neo-glow-orange focus:outline-none focus:ring-2 focus:ring-neo-orange focus:ring-offset-2 focus:ring-offset-black"
+               :class="store.isExpertMode ? 'bg-neo-orange text-black border-neo-orange shadow-neo-glow-orange' : 'text-white/60 border-white/20 hover:text-white hover:border-white/40'"
+               :aria-label="store.isExpertMode ? 'Désactiver le Mode Expert' : 'Activer le Mode Expert'"
+               :aria-pressed="store.isExpertMode"
+               aria-describedby="expert-mode-tooltip"
+             >
+               {{ store.isExpertMode ? 'EXPERT_ON' : 'EXPERT_OFF' }}
+             </button>
+           </TooltipTrigger>
+           <TooltipContent 
+             id="expert-mode-tooltip"
+             class="bg-black/90 border border-neo-orange/50 text-white text-xs font-retro p-2 max-w-xs"
+             role="tooltip"
+           >
+             <p>Mode Expert : Accès aux composants haut de gamme et personnalisation avancée</p>
+           </TooltipContent>
+         </Tooltip>
+       </TooltipProvider>
 
        <Transition name="fade" mode="out-in">
          <div v-if="store.show3D" class="w-full h-full relative">
@@ -158,6 +213,7 @@ onMounted(() => {
             v-for="cat in store.categories" 
             :key="cat.id"
             @click="!cat.disabled && store.setCategory(cat.id)"
+            :data-category="cat.id"
             class="flex-1 h-12 border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center group relative overflow-hidden"
             :class="[store.activeCategory === cat.id ? 'border-neo-orange bg-neo-orange/10 !opacity-100' : 'opacity-90 hover:opacity-100']"
           >
@@ -188,6 +244,34 @@ onMounted(() => {
         </div>
       </div>
     </aside>
+
+    <!-- Expert Sidebar (Left side, appears when Expert Mode is active) -->
+    <ExpertSidebar />
+
+    <!-- Deck Manager (Story 3.1) — panneau droit -->
+    <Teleport to="body">
+      <Transition name="deck-panel">
+        <div
+          v-if="showDeckManager"
+          class="fixed inset-0 z-[45] flex justify-end pointer-events-none"
+          aria-modal="true"
+          role="dialog"
+          aria-label="Deck Manager"
+        >
+          <div
+            class="absolute inset-0 bg-black/40 pointer-events-auto"
+            aria-hidden="true"
+            @click="showDeckManager = false"
+          />
+          <div
+            class="deck-panel-slide relative w-full max-w-md sm:max-w-lg h-full glass-premium border-l-4 border-neo-purple shadow-neo-hard-purple pointer-events-auto flex flex-col overflow-hidden"
+            @click.stop
+          >
+            <DeckManager @close="showDeckManager = false" />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- RIGHT: Quote & Confirmation (Floating Desktop) -->
     <aside 
@@ -235,7 +319,8 @@ onMounted(() => {
             v-for="cat in store.categories" 
             :key="cat.id"
             @click="store.setCategory(cat.id)"
-            class="flex flex-col items-center gap-1 p-2 transition-all"
+            :data-category="cat.id"
+            class="flex-col items-center gap-1 p-2 transition-all flex"
             :class="[store.activeCategory === cat.id ? 'text-neo-orange' : 'text-white/80 opacity-90 hover:text-white']"
           >
             <img 
@@ -304,6 +389,24 @@ onMounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Deck Manager panel (Story 3.1) */
+.deck-panel-enter-active,
+.deck-panel-leave-active {
+  transition: opacity 0.2s ease;
+}
+.deck-panel-enter-active .deck-panel-slide,
+.deck-panel-leave-active .deck-panel-slide {
+  transition: transform 0.25s ease;
+}
+.deck-panel-enter-from,
+.deck-panel-leave-to {
+  opacity: 0;
+}
+.deck-panel-enter-from .deck-panel-slide,
+.deck-panel-leave-to .deck-panel-slide {
+  transform: translateX(100%);
 }
 </style>
 

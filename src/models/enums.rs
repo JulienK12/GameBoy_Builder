@@ -3,7 +3,7 @@
 // 🏷️ ENUMS - Types métier
 // ========================================
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sqlx::Type;
 
 /// Type de moulage de la coque
@@ -59,4 +59,13 @@ impl std::fmt::Display for CompatibilityStatus {
             CompatibilityStatus::No => write!(f, "No"),
         }
     }
+}
+
+/// Catégorie de mod expert (CPU, Audio, Alimentation)
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, Type)]
+#[sqlx(type_name = "expert_mod_category", rename_all = "PascalCase")]
+pub enum ExpertModCategory {
+    Cpu,
+    Audio,
+    Power,
 }

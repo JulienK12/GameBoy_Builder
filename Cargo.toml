@@ -10,6 +10,15 @@ serde_json = "1.0"
 axum = "0.7"
 tokio = { version = "1.0", features = ["full"] }
 # PostgreSQL - utilise rustls pour éviter windows-sys
-sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "macros", "tls-rustls"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "macros", "tls-rustls", "chrono", "migrate"] }
 dotenvy = "0.15"
 tower-http = { version = "0.5", features = ["cors", "fs"] }
+tower = { version = "0.5", features = ["util"] }
+# Auth (Story 3.0)
+argon2 = "0.5"
+jsonwebtoken = "9"
+axum-extra = { version = "0.9", features = ["cookie"] }
+validator = { version = "0.18", features = ["derive"] }
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"

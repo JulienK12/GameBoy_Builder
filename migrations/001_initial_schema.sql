@@ -1,14 +1,34 @@
 -- ========================================
 -- 🐚 SHELLS (Coques)
 -- ========================================
+-- Types : création idempotente (ne pas échouer si déjà appliqué)
 
-CREATE TYPE mold_type AS ENUM ('OemStandard', 'IpsReady', 'LaminatedReady');
-CREATE TYPE brand AS ENUM ('OEM', 'FunnyPlaying', 'Hispeedido', 'CloudGameStore', 'ExtremeRate');
-CREATE TYPE screen_size AS ENUM ('Standard', 'Large');
-CREATE TYPE screen_assembly AS ENUM ('Component', 'Laminated');
-CREATE TYPE compatibility_status AS ENUM ('Yes', 'Cut', 'No');
+DO $$ BEGIN
+  CREATE TYPE mold_type AS ENUM ('OemStandard', 'IpsReady', 'LaminatedReady');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TABLE shells (
+DO $$ BEGIN
+  CREATE TYPE brand AS ENUM ('OEM', 'FunnyPlaying', 'Hispeedido', 'CloudGameStore', 'ExtremeRate');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE screen_size AS ENUM ('Standard', 'Large');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE screen_assembly AS ENUM ('Component', 'Laminated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE compatibility_status AS ENUM ('Yes', 'Cut', 'No');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS shells (
     id VARCHAR(50) PRIMARY KEY,
     handled_model VARCHAR(50) NOT NULL,
     brand brand NOT NULL,
@@ -17,7 +37,7 @@ CREATE TABLE shells (
     mold mold_type NOT NULL
 );
 
-CREATE TABLE shell_variants (
+CREATE TABLE IF NOT EXISTS shell_variants (
     id VARCHAR(50) PRIMARY KEY,
     shell_id VARCHAR(50) NOT NULL REFERENCES shells(id),
     name VARCHAR(100) NOT NULL,
@@ -31,7 +51,7 @@ CREATE TABLE shell_variants (
 -- 📺 SCREENS (Écrans)
 -- ========================================
 
-CREATE TABLE screens (
+CREATE TABLE IF NOT EXISTS screens (
     id VARCHAR(50) PRIMARY KEY,
     handled_model VARCHAR(50) NOT NULL,
     brand brand NOT NULL,
@@ -41,7 +61,7 @@ CREATE TABLE screens (
     assembly screen_assembly NOT NULL
 );
 
-CREATE TABLE screen_variants (
+CREATE TABLE IF NOT EXISTS screen_variants (
     id VARCHAR(50) PRIMARY KEY,
     screen_id VARCHAR(50) NOT NULL REFERENCES screens(id),
     name VARCHAR(100) NOT NULL,
@@ -53,14 +73,14 @@ CREATE TABLE screen_variants (
 -- 🔍 LENSES (Vitres)
 -- ========================================
 
-CREATE TABLE lenses (
+CREATE TABLE IF NOT EXISTS lenses (
     id VARCHAR(50) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     price DOUBLE PRECISION NOT NULL,
     size screen_size NOT NULL
 );
 
-CREATE TABLE lens_variants (
+CREATE TABLE IF NOT EXISTS lens_variants (
     id VARCHAR(50) PRIMARY KEY,
     lens_id VARCHAR(50) NOT NULL REFERENCES lenses(id),
     name VARCHAR(100) NOT NULL,
@@ -72,7 +92,7 @@ CREATE TABLE lens_variants (
 -- 🔀 COMPATIBILITY MATRIX
 -- ========================================
 
-CREATE TABLE shell_screen_compatibility (
+CREATE TABLE IF NOT EXISTS shell_screen_compatibility (
     screen_id VARCHAR(50) NOT NULL REFERENCES screens(id),
     shell_id VARCHAR(50) NOT NULL REFERENCES shells(id),
     status compatibility_status NOT NULL,

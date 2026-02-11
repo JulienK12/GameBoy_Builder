@@ -163,6 +163,7 @@ Afin de ne pas perdre ma progression créative.
 - Task 2 : Store `deck` avec `defineStore(..., { persist: { key: 'gameboy-deck' } })` ; état sérialisable inchangé.
 - Task 3 : Restauration UI assurée par le plugin ; fallback `@error` sur les images d’aperçu dans `DeckManager.vue` pour afficher un placeholder si l’image ne charge pas (catalogue indisponible ou variante invalide).
 - Task 4 : Deux tests E2E ajoutés dans `deck-manager.spec.js` (Story 3.2) : restauration après reload (AC #1) et état reflétant les modifications après reload (AC #2). Tests unitaires deck existants (Vitest) passent sans modification.
+- Code review 2026-02-11 : Corrections appliquées — `MAX_DECK_CONFIGS = 3` dans `deck.js` ; nettoyage de `imageError` à la suppression d'une carte dans `DeckManager.vue`. Fichiers story 3.2 ajoutés au suivi git.
 
 ### File List
 
@@ -171,3 +172,31 @@ Afin de ne pas perdre ma progression créative.
 - frontend/src/components/DeckManager.vue (modifié)
 - frontend/tests/deck-manager.spec.js (modifié)
 - _bmad-output/implementation-artifacts/sprint-status.yaml (modifié)
+
+---
+
+## Rapport QA (Story 3.2) — 2026-02-11
+
+**Agent :** Quinn (QA Engineer)  
+**Story :** 3.2 — Persistance locale & logique de synchronisation
+
+### Vérifications effectuées
+
+| Critère | Statut | Détail |
+|--------|--------|--------|
+| **AC #1** — Restauration après reload | ✅ | Plugin dans `main.js`, `persist: { key: 'gameboy-deck' }` dans `deck.js` ; E2E « AC #1: deck is restored after page reload » couvre 1 carte → reload → même contenu (nom, prix, aperçu). |
+| **AC #2** — Persistance auto, pas d’API | ✅ | Aucun appel `/deck` ; E2E « AC #2: deck state reflects last modifications after reload » (add 2 → remove 1 → reload → 1 carte). |
+| **Task 1** — Plugin Pinia | ✅ | `pinia-plugin-persistedstate` importé et `pinia.use(...)` dans `main.js`. |
+| **Task 2** — Persist sur store deck | ✅ | `defineStore(..., { persist: { key: 'gameboy-deck' } })` dans `deck.js`. |
+| **Task 3** — Restauration UI / fallback | ✅ | `DeckManager.vue` : `imageError` + `showPlaceholder` ; nettoyage de `imageError` à la suppression (`removeFromDeck`). |
+| **Task 4** — Tests | ✅ | E2E Story 3.2 dans `deck-manager.spec.js` ; tests unitaires `deck.spec.js` passent. |
+
+### Résultats des tests
+
+- **Vitest** (`tests/unit/deck.spec.js`) : **8/8 passés** (store deck, limite 3, add/remove, getPreviewImageUrl).
+- **Playwright** (`tests/deck-manager.spec.js`, chromium) : **7/7 passés** (dont 2 tests Story 3.2 : restauration après reload, état après add/remove puis reload).
+
+### Verdict QA
+
+- **Conformité :** AC #1 et #2 validés par le code et les tests.
+- **Statut :** Story 3.2 **validée pour la QA** — aucun blocant ; prête pour la livraison.

@@ -4,7 +4,7 @@
 // ========================================
 
 use super::enums::{Brand, MoldType, ScreenSize, ScreenAssembly};
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 use sqlx::FromRow;
 
 // === COQUES ===

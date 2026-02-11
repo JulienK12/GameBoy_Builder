@@ -239,3 +239,129 @@ test.describe('Deck Manager persistence (Story 3.2)', () => {
         await expect(panelAfterReload.locator('.grid.gap-4 > div')).toHaveCount(1);
     });
 });
+
+test.describe('Deck Manager sync cloud (Story 3.3)', () => {
+    const mockCatalogShells = {
+        shells: [{ id: 'SHELL_GBC_FP', name: 'FunnyPlaying Shell', brand: 'FunnyPlaying' }],
+        variants: [{ id: 'VAR_SHELL_GBC_FP_ATOMIC_PURPLE', shell_id: 'SHELL_GBC_FP', name: 'Atomic Purple', image_url: '/images/shells/atomic_purple.jpg', color_hex: '#8B5CF6' }]
+    };
+    const mockCatalogScreens = {
+        screens: [{ id: 'SCR_GBC_OEM', name: 'OEM LCD', brand: 'Nintendo', assembly: 'Component' }],
+        variants: [{ id: 'VAR_SCR_GBC_OEM', screen_id: 'SCR_GBC_OEM', name: 'Original LCD', image_url: '/images/screens/oem.jpg' }]
+    };
+    const mockCatalogLenses = {
+        lenses: [{ id: 'LENS_GBC_GLASS', name: 'Glass Lens' }],
+        variants: [{ id: 'VAR_LENS_GBC_GLASS_BLACK', lens_id: 'LENS_GBC_GLASS', name: 'Black Glass', image_url: '/images/lenses/black.jpg' }]
+    };
+    const mockQuote = {
+        success: true,
+        quote: { items: [], total_price: 25.0, warnings: [] },
+        error: null
+    };
+
+    test('AC #2: when authenticated, deck is loaded from backend after reload', async ({ page }) => {
+        const deckConfigs = [];
+        await page.route('**/auth/me', async (route) => {
+            await route.fulfill({ status: 200, body: JSON.stringify({ user: { id: 'u1', email: 'u@test.com' } }) });
+        });
+        await page.route('**/deck', async (route) => {
+            const req = route.request();
+            if (req.method() === 'GET') {
+                await route.fulfill({ status: 200, body: JSON.stringify({ configurations: deckConfigs }) });
+            } else if (req.method() === 'POST') {
+                const postBody = await req.postDataJSON();
+                const id = `cfg-${Date.now()}`;
+                const config = {
+                    id,
+                    name: postBody.name || 'Configuration 1',
+                    configuration: postBody.configuration || {},
+                    total_price: 25.0,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+                deckConfigs.push(config);
+                await route.fulfill({ status: 201, body: JSON.stringify({ configuration: config }) });
+            }
+        });
+        await page.route('**/deck/*', async (route) => {
+            const url = route.request().url();
+            const id = url.split('/deck/')[1]?.split('/')[0];
+            if (route.request().method() === 'DELETE' && id) {
+                const idx = deckConfigs.findIndex((c) => c.id === id);
+                if (idx >= 0) deckConfigs.splice(idx, 1);
+                await route.fulfill({ status: 204 });
+            } else await route.continue();
+        });
+        await page.route('**/catalog/packs', (r) => r.fulfill({ json: { packs: [] } }));
+        await page.route('**/catalog/shells', (r) => r.fulfill({ json: mockCatalogShells }));
+        await page.route('**/catalog/screens', (r) => r.fulfill({ json: mockCatalogScreens }));
+        await page.route('**/catalog/lenses', (r) => r.fulfill({ json: mockCatalogLenses }));
+        await page.route('**/catalog/expert-mods', (r) => r.fulfill({ json: { mods: { cpu: [], audio: [], power: [] } } }));
+        await page.route('**/quote', (r) => r.fulfill({ json: mockQuote }));
+
+        await page.goto('/');
+        await page.waitForLoadState('domcontentloaded');
+        await page.getByText('ATELIER LIBRE').click();
+        await expect(page.locator('.fixed.inset-0.z-\\[100\\]')).not.toBeVisible({ timeout: 8000 });
+
+        await page.locator('[data-category="shell"]').first().click();
+        await page.locator('[data-variant-id]').first().waitFor({ state: 'visible', timeout: 15000 });
+        await page.locator('[data-variant-id]').first().click();
+        await page.locator('[data-category="screen"]').first().click();
+        await page.locator('[data-variant-id]').first().waitFor({ state: 'visible', timeout: 10000 });
+        await page.locator('[data-variant-id]').first().click();
+
+        await page.getByRole('button', { name: /ouvrir le deck manager/i }).click();
+        await page.getByRole('button', { name: /sauvegarder dans le deck/i }).click();
+        await expect(page.getByRole('dialog', { name: /deck manager/i }).getByText('Configuration 1')).toBeVisible({ timeout: 5000 });
+        await page.getByRole('button', { name: /fermer/i }).click();
+
+        await page.reload();
+        await page.waitForLoadState('domcontentloaded');
+        await page.getByText('ATELIER LIBRE').click();
+        await expect(page.locator('.fixed.inset-0.z-\\[100\\]')).not.toBeVisible({ timeout: 8000 });
+        await page.getByRole('button', { name: /ouvrir le deck manager/i }).click();
+
+        const panel = page.getByRole('dialog', { name: /deck manager/i });
+        await expect(panel).toBeVisible();
+        await expect(panel.getByText('Configuration 1')).toBeVisible({ timeout: 5000 });
+        await expect(panel.locator('.grid.gap-4 > div')).toHaveCount(1);
+    });
+
+    test('guest: behavior 3.2 unchanged (localStorage, no /deck calls)', async ({ page }) => {
+        await page.route('**/auth/me', async (route) => {
+            await route.fulfill({ status: 401 });
+        });
+        let deckGetCalls = 0;
+        await page.route('**/deck', (route) => {
+            if (route.request().method() === 'GET') deckGetCalls += 1;
+            route.abort();
+        });
+        await page.route('**/catalog/packs', (r) => r.fulfill({ json: { packs: [] } }));
+        await page.route('**/catalog/shells', (r) => r.fulfill({ json: mockCatalogShells }));
+        await page.route('**/catalog/screens', (r) => r.fulfill({ json: mockCatalogScreens }));
+        await page.route('**/catalog/lenses', (r) => r.fulfill({ json: mockCatalogLenses }));
+        await page.route('**/catalog/expert-mods', (r) => r.fulfill({ json: { mods: { cpu: [], audio: [], power: [] } } }));
+        await page.route('**/quote', (r) => r.fulfill({ json: mockQuote }));
+
+        await page.goto('/');
+        await page.evaluate(() => localStorage.removeItem('gameboy-deck'));
+        await page.waitForLoadState('domcontentloaded');
+        await page.getByText('ATELIER LIBRE').click();
+        await expect(page.locator('.fixed.inset-0.z-\\[100\\]')).not.toBeVisible({ timeout: 8000 });
+
+        await page.locator('[data-category="shell"]').first().click();
+        await page.locator('[data-variant-id]').first().waitFor({ state: 'visible', timeout: 15000 });
+        await page.locator('[data-variant-id]').first().click();
+        await page.getByRole('button', { name: /ouvrir le deck manager/i }).click();
+        await page.getByRole('button', { name: /sauvegarder dans le deck/i }).click();
+        await expect(page.getByRole('dialog', { name: /deck manager/i }).getByText('Configuration 1')).toBeVisible({ timeout: 5000 });
+        await page.getByRole('button', { name: /fermer/i }).click();
+        await page.reload();
+        await page.waitForLoadState('domcontentloaded');
+        await page.getByText('ATELIER LIBRE').click();
+        await page.getByRole('button', { name: /ouvrir le deck manager/i }).click();
+        await expect(page.getByRole('dialog', { name: /deck manager/i }).getByText('Configuration 1')).toBeVisible({ timeout: 5000 });
+        expect(deckGetCalls).toBe(0);
+    });
+});
