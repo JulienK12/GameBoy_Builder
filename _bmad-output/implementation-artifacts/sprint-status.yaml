@@ -76,7 +76,7 @@ development_status:
   # Epic 4: "L'Expérience Signature" — Showcase & Validation Finale
   # FR couverts: FR10
   # ================================================
-  epic-4: backlog
-  4-1-le-moment-signature-focus-reveal: backlog
+  epic-4: in-progress
+  4-1-le-moment-signature-focus-reveal: done
   4-2-validation-et-transition-panier: backlog
   epic-4-retrospective: optional

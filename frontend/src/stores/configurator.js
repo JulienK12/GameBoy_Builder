@@ -16,6 +16,7 @@ export const useConfiguratorStore = defineStore('configurator', () => {
     const show3D = ref(false); // Toggle between 3D view and Selection Recap
     const showLandingPortal = ref(true); // Portail d'accueil visible par défaut
     const isExpertMode = ref(false); // Expert Mode toggle state
+    const showSignatureShowcase = ref(false); // Story 4.1 — mode Signature plein écran
 
     const quote = ref(null);
     const error = ref(null);
@@ -287,6 +288,7 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         selectedPackId.value = null;
         quote.value = null;
         error.value = null;
+        showSignatureShowcase.value = false; // Story 4.1 — fermer le showcase si config réinitialisée
         // Optionally reset category to shell
         activeCategory.value = 'shell';
     }
@@ -543,6 +545,7 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         smartSortEnabled, // Integrated
         show3D,          // New state
         isExpertMode,    // Expert Mode state
+        showSignatureShowcase, // Story 4.1 — Signature Showcase fullscreen
         selectedShellParentId,   // Exposed for gallery
         selectedScreenParentId,  // Exposed for gallery
         categories: CATEGORIES,

@@ -11,6 +11,7 @@ import LandingPortal from '@/components/LandingPortal.vue';
 import ExpertSidebar from '@/components/ExpertSidebar.vue';
 import DeckManager from '@/components/DeckManager.vue';
 import GlitchEffect from '@/components/GlitchEffect.vue';
+import SignatureShowcase from '@/components/SignatureShowcase.vue';
 import {
   Tooltip,
   TooltipContent,
@@ -57,6 +58,15 @@ onMounted(() => {
   }
 });
 
+// Story 4.1 — Finaliser : configuration complète + devis valide pour afficher Signature Showcase
+const canFinalize = computed(() => {
+  const hasShell = !!store.selectedShellVariantId;
+  const hasScreen = !!store.selectedScreenVariantId;
+  const hasLensOrNotRequired = !!store.selectedLensVariantId || !store.isLensRequired;
+  const hasValidQuote = store.quote?.total_price != null && !store.hasError;
+  return hasShell && hasScreen && hasLensOrNotRequired && hasValidQuote;
+});
+
 const verificationGroups = [
   'shell_front',
   'shell_back',
@@ -84,9 +94,13 @@ onMounted(() => {
   <div class="h-[100dvh] w-full max-w-[100vw] bg-grey-ultra-dark overflow-hidden relative selection:bg-neo-orange/30">
     <!-- Effet Glitch global (Story 2.3 - erreurs validation expert) -->
     <GlitchEffect :trigger="store.glitchTrigger" />
+    <!-- Story 4.1 — Signature Showcase (plein écran, au-dessus du reste) -->
+    <SignatureShowcase v-if="store.showSignatureShowcase" />
     <!-- LandingPortal -->
     <LandingPortal v-if="store.showLandingPortal" />
 
+    <!-- Atelier : masqué quand Signature Showcase est affiché (AC #1) -->
+    <template v-if="!store.showSignatureShowcase">
     <!-- <DebugOverlay /> -->
     
     <!-- 3D Mapper Tool (Temporary) -->
@@ -291,8 +305,15 @@ onMounted(() => {
         </div>
 
         <div class="p-5 bg-black/40 border-t border-white/5">
-          <button class="w-full py-3 bg-neon-cyan text-black font-title text-xs tracking-[.25em] hover:brightness-110 active:scale-95 transition-all shadow-[4px_4px_0px_#111]">
-            CONFIRM_BUILD
+          <button
+            type="button"
+            :disabled="!canFinalize"
+            @click="store.showSignatureShowcase = true"
+            class="w-full py-3 font-title text-xs tracking-[.25em] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            :class="canFinalize ? 'bg-neon-cyan text-black hover:brightness-110 active:scale-95 shadow-[4px_4px_0px_#111]' : 'bg-white/20 text-white/60'"
+            data-testid="btn-finaliser"
+          >
+            FINALISER
           </button>
         </div>
       </div>
@@ -337,15 +358,26 @@ onMounted(() => {
           <VariantGallery :is-mobile="true" />
         </div>
 
-        <!-- Mobile Total & Expand -->
-        <div class="p-4 bg-black/60 flex justify-between items-center border-t border-white/10">
+        <!-- Mobile Total & Expand (Story 4.1 : Finaliser ouvre Signature Showcase) -->
+        <div class="p-4 bg-black/60 flex justify-between items-center gap-2 border-t border-white/10">
           <div>
              <span class="text-[8px] font-retro text-white/30 block mb-1 uppercase">ESTIMATED_TOTAL</span>
              <span class="text-xl font-title text-neo-orange tracking-tight">{{ store.totalPrice.toFixed(2) }}€</span>
           </div>
-          <button @click="toggleQuote" class="px-6 py-2 bg-neo-purple text-white font-title text-[10px] tracking-widest rounded-sm active:scale-95 transition-all">
-            {{ isQuoteOpen ? ' FERMER' : 'DETAIL' }}
-          </button>
+          <div class="flex gap-2">
+            <button
+              v-if="canFinalize"
+              type="button"
+              @click="store.showSignatureShowcase = true"
+              class="px-4 py-2 bg-neo-orange text-black font-title text-[10px] tracking-widest rounded-sm active:scale-95 transition-all"
+              data-testid="btn-finaliser-mobile"
+            >
+              FINALISER
+            </button>
+            <button @click="toggleQuote" class="px-6 py-2 bg-neo-purple text-white font-title text-[10px] tracking-widest rounded-sm active:scale-95 transition-all">
+              {{ isQuoteOpen ? ' FERMER' : 'DETAIL' }}
+            </button>
+          </div>
         </div>
       </div>
     </Transition>
@@ -370,6 +402,7 @@ onMounted(() => {
       </div>
     </div>
 
+    </template>
   </div>
 </template>
 
