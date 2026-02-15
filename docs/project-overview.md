@@ -1,15 +1,15 @@
 # 🎮 GameBoy_Builder — Vue d'ensemble du projet
 
-> **Dernière mise à jour :** 2026-02-10
-> **Version :** v6.0 (V1.0 Launch Ready)
+> **Dernière mise à jour :** 2026-02-15
+> **Version :** v6.0 (Launch Ready - Epic 6 Complete)
 
 ---
 
 ## Résumé exécutif
 
-GameBoy_Builder (nom de marque : **Rayboy**) est un **configurateur web de consoles GameBoy modifiées** permettant aux utilisateurs de personnaliser leur console en choisissant parmi un catalogue de coques, écrans et vitres.
+GameBoy_Builder (nom de marque : **Rayboy**) est un **configurateur web "Airy Cyberpunk" de consoles GameBoy modifiées**. Il s'adresse tant aux néophytes (via des packs de démarrage) qu'aux passionnés (via un Mode Expert granulaire).
 
-L'application génère un **devis en temps réel** basé sur les choix utilisateur, avec un **moteur de compatibilité** vérifiant les combinaisons de pièces, et propose une **prévisualisation 3D** des options sélectionnées.
+L'application permet une personnalisation totale : coque, écran, vitre, mods techniques et même chaque bouton individuellement, avec un moteur de prix intelligent et une validation en temps réel.
 
 ---
 
@@ -18,54 +18,50 @@ L'application génère un **devis en temps réel** basé sur les choix utilisate
 | Couche | Technologie | Version | Justification |
 |---|---|---|---|
 | **Backend - Langage** | Rust | 2021 edition | Performance, sécurité mémoire |
-| **Backend - Framework** | Axum | 0.7 | Framework HTTP async léger |
-| **Backend - ORM** | SQLx | 0.8 | Requêtes SQL compilées, async |
-| **Base de données** | PostgreSQL | — | Robustesse, types custom (enums) |
+| **Backend - Framework** | Axum | 0.7 | Framework HTTP async robuste |
+| **Backend - Persistance** | SQLx / PostgreSQL | 0.8 / 16 | Requêtes typées, migrations SQL |
 | **Frontend - Framework** | Vue.js 3 | 3.5 | Composition API, réactivité |
-| **Frontend - State** | Pinia | 3.0 | Gestion d'état moderne pour Vue |
-| **Frontend - 3D** | TresJS / Three.js | 5.3 / 0.182 | Rendu 3D dans Vue.js |
-| **Frontend - CSS** | Tailwind CSS | v4 | Design system utilitaire |
-| **Frontend - Build** | Vite | 7.2 | Build rapide, HMR |
-| **Frontend - Tests** | Playwright | 1.58 | Tests E2E automatisés |
-| **Frontend - HTTP** | Axios | 1.13 | Client HTTP pour l'API REST |
+| **Frontend - State** | Pinia | 3.0 | Store centralisé (configurator, deck, auth) |
+| **Frontend - 3D** | TresJS / Three.js | 5.3 / 0.182 | Rendu 3D intégré à Vue |
+| **Frontend - Styles** | Tailwind CSS | v4 | Design "Airy Cyberpunk" utilitaire |
+| **Frontend - Build** | Vite | 7.2 | Rapidité de développement (HMR) |
 
 ---
 
-## Architecture type
+## Architecture du système
 
-- **Type de repository :** Multi-part (Monorepo)
-- **Backend :** API REST (Rust/Axum) → project_type: `backend`
-- **Frontend :** SPA Vue.js 3 → project_type: `web`
-- **Communication :** HTTP REST (JSON) entre Frontend et Backend
-- **Pattern architectural :** 3-Tier (Présentation → Logic métier → Persistance)
-
----
-
-## Fonctionnalités principales (V1.0)
-
-### 🎨 Interface utilisateur
-- Design **Glassmorphism** retro-futuriste (cyber/neon)
-- Galerie filtrable par marque, technologie, type de moulage
-- Info-bulles riches au survol avec détails et prix
-- Vue récap des sélections
-- Responsive mobile
-
-### ⚙️ Moteur de configuration
-- Catalogue dynamique chargé depuis PostgreSQL (74 coques, 16 écrans, 27 vitres)
-- 70 règles de compatibilité coque/écran
-- Calcul de devis en temps réel
-- Détection automatique des services requis (découpe, installation)
-
-### 🎮 Visualisation 3D
-- Rendu temps réel via TresJS (Three.js pour Vue)
-- Chargement de modèles GLB
-- Mappage des couleurs/textures en temps réel
+- **Type :** Monorepo Multi-part.
+- **Backend (Axum) :** Source unique de vérité (SSOT) pour les prix, les règles de compatibilité et l'auth.
+- **Frontend (SPA) :** Interface immersive avec mises à jour optimistes et feedback visuel "Neon".
+- **Persistance hybride :** `localStorage` pour les invités (Deck) et PostgreSQL pour les utilisateurs connectés.
+- **Sécurité :** JWT via cookies HttpOnly/Secure, hashage Argon2.
 
 ---
 
-## Périmètre futur
+## Fonctionnalités Clés (Finalisées)
 
-- **Multi-consoles :** GameBoy DMG, Pocket, Advance, Advance SP
-- **Prix consoles de base :** Service à ajouter en BDD (DMG: 40€, Pocket: 35€, Color: 45€, Advance: 45€, SP: 65€)
-- **Modèle 3D avancé :** Travail Blender sur le mappage des options
-- **Mode simplifié :** Configurations pré-déterminées pour les non-experts
+### 🚀 Parcours Utilisateur
+- **Landing Portal HUD** : Choix immédiat entre "Starter Kits" et "Atelier Libre".
+- **Starter Kits (Epic 1)** : Packs thématiques (Budget, Performance, Purist) pilotés par les données.
+- **Signature Showcase (Epic 4)** : Révélation spectaculaire de la console finale en plein écran.
+
+### 🛠️ Personnalisation Avancée
+- **Expert Mode (Epic 2)** : Sidebar technique pour les mods avancés (CPU, Audio, Power).
+- **L'Art du Détail (Epic 6)** : Sélecteur granulaire de boutons (D-pad, A, B, etc.) pour GBC, DMG, GBA et GBA SP.
+- **Prix Kit-Centric** : Logique de prix intelligente (+5€ par kit de couleur unique pour les boutons).
+
+### 💾 Gestion & Persistance
+- **Deck Manager (Epic 3)** : Visualisation de multiples configurations sous forme de cartes.
+- **Multi-Console** : Support complet du catalogue pour GBC, DMG, GBA, GBA SP.
+- **Cloud Sync** : Authentification et synchronisation du deck entre navigateurs.
+
+---
+
+## Guide de Navigation de la Documentation
+
+- [🔍 Master Index](./index.md) : Portail central de la documentation.
+- [🏗️ Architecture Backend](./architecture-backend.md) : Détails du moteur Rust et du calculateur.
+- [🎨 Architecture Frontend](./architecture-frontend.md) : Structure des composants "Airy" et des stores Pinia.
+- [🔗 API Contracts](./api-contracts.md) : Spécifications exactes des endpoints REST.
+- [📊 Modèles de Données](./data-models.md) : Schéma PostgreSQL et migrations.
+- [🚀 Guide de Développement](./development-guide.md) : Installation et commandes utiles.

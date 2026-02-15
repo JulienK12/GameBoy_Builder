@@ -77,7 +77,7 @@ test.describe('Deck Manager (Story 3.1)', () => {
 
     test('AC #2: should disable add button and show message when deck has 3 configurations', async ({ page }) => {
         // Need a valid config: select shell and screen so quote exists (requires backend/catalog)
-        await page.getByText('RECAP_VIEW').click();
+        await page.getByTestId('btn-recap-view').click();
         await page.locator('[data-category="shell"]').first().click();
         const firstShell = page.locator('[data-variant-id]').first();
         await firstShell.waitFor({ state: 'visible', timeout: 15000 });

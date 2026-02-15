@@ -47,6 +47,18 @@ function toggleShowroom() {
   if (isShowroomMode.value) isQuoteOpen.value = false;
 }
 
+/**
+ * Retour au portail de choix du mode (Starter Kits / Atelier Libre).
+ * Réinitialise la config si un pack était sélectionné pour éviter les états incohérents.
+ */
+function retourPortail() {
+  // Réinitialiser la configuration si un pack était sélectionné
+  if (store.selectedPackId) {
+    store.resetConfig();
+  }
+  store.showLandingPortal = true;
+}
+
 // Charger le catalogue et le deck (cloud si connecté) au démarrage
 onMounted(() => {
   store.fetchCatalog();
@@ -59,11 +71,13 @@ onMounted(() => {
 });
 
 // Story 4.1 — Finaliser : configuration complète + devis valide pour afficher Signature Showcase
+// Note: Les boutons sont optionnels - un utilisateur peut finaliser sans sélectionner de boutons
 const canFinalize = computed(() => {
   const hasShell = !!store.selectedShellVariantId;
   const hasScreen = !!store.selectedScreenVariantId;
   const hasLensOrNotRequired = !!store.selectedLensVariantId || !store.isLensRequired;
   const hasValidQuote = store.quote?.total_price != null && !store.hasError;
+  // Buttons are optional - no check needed for selectedButtonVariantId
   return hasShell && hasScreen && hasLensOrNotRequired && hasValidQuote;
 });
 
@@ -99,6 +113,18 @@ onMounted(() => {
     <!-- LandingPortal -->
     <LandingPortal v-if="store.showLandingPortal" />
 
+    <!-- Message succès après Confirmer la Création (Story 4.2) -->
+    <Transition name="fade">
+      <div
+        v-if="store.submissionSuccessMessage"
+        class="fixed top-6 left-1/2 -translate-x-1/2 z-[60] px-6 py-3 glass-premium border-2 border-neo-orange/50 text-neo-orange font-title text-[10px] tracking-widest rounded-lg shadow-neo-glow-orange"
+        role="status"
+        data-testid="submission-success-banner"
+      >
+        {{ store.submissionSuccessMessage }}
+      </div>
+    </Transition>
+
     <!-- Atelier : masqué quand Signature Showcase est affiché (AC #1) -->
     <template v-if="!store.showSignatureShowcase">
     <!-- <DebugOverlay /> -->
@@ -120,12 +146,15 @@ onMounted(() => {
 
     <!-- 1. BACKGROUND: MASSIVE 3D STAGE (The "Hero") -->
     <main class="absolute inset-0 z-0 bg-black group overflow-hidden flex flex-col justify-center items-center">
-       <!-- Toggle 3D/Recap Button -->
-       <div class="absolute top-6 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 p-1 bg-white/10 backdrop-blur-md rounded-full border border-white/5 pointer-events-auto">
+       <!-- Toggle 3D/Recap Button (Story 5.1) — top-16 sur mobile pour éviter le conflit avec RETOUR -->
+       <div class="absolute top-16 lg:top-6 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 p-1 bg-white/10 backdrop-blur-md rounded-full border border-white/5 pointer-events-auto" data-testid="toggle-3d-recap">
           <button 
              @click="store.show3D = true"
              class="px-4 py-1.5 rounded-full text-[10px] font-retro tracking-widest transition-all duration-300"
              :class="store.show3D ? 'bg-neo-purple text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'text-white/40 hover:text-white'"
+             :aria-pressed="store.show3D"
+             aria-label="Afficher la vue 3D"
+             data-testid="btn-3d-view"
           >
              3D_VIEW
           </button>
@@ -133,6 +162,9 @@ onMounted(() => {
              @click="store.show3D = false"
              class="px-4 py-1.5 rounded-full text-[10px] font-retro tracking-widest transition-all duration-300"
              :class="!store.show3D ? 'bg-neo-orange text-white shadow-[0_0_15px_rgba(255,107,53,0.5)]' : 'text-white/40 hover:text-white'"
+             :aria-pressed="!store.show3D"
+             aria-label="Afficher le récapitulatif des options"
+             data-testid="btn-recap-view"
           >
              RECAP_VIEW
           </button>
@@ -167,6 +199,14 @@ onMounted(() => {
 
        <Transition name="fade" mode="out-in">
          <div v-if="store.show3D" class="w-full h-full relative">
+            <!-- Badge APERÇU_3D (Task 2.1 - Story 5.1) — contraste WCAG AA (NFR2) -->
+            <div 
+              class="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 glass-premium border border-white/20 rounded-full pointer-events-none"
+              data-testid="3d-preview-badge"
+            >
+              <span class="text-[8px] font-retro text-white/90 tracking-widest uppercase">APERÇU_3D</span>
+            </div>
+            
             <!-- Corner Accents inside 3D view -->
             <div class="absolute top-6 left-6 w-16 h-16 border-l-2 border-t-2 border-neon-cyan/20 z-10 pointer-events-none"></div>
             <div class="absolute bottom-6 right-6 w-16 h-16 border-r-2 border-b-2 border-neo-purple/20 z-10 pointer-events-none"></div>
@@ -215,11 +255,23 @@ onMounted(() => {
     <!-- TOP LEFT: Branding & Main Category Nav (Desktop) -->
     <header class="absolute top-6 left-6 z-40 w-[440px] pointer-events-none hidden lg:block">
       <div class="glass-premium p-6 rounded-lg pointer-events-auto border-l-4 border-neo-orange shadow-neo-hard-orange">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-9 h-9 bg-neo-orange border border-black rotate-3 flex items-center justify-center">
-            <span class="font-title text-black text-xs">RB</span>
+        <div class="flex items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-4">
+            <div class="w-9 h-9 bg-neo-orange border border-black rotate-3 flex items-center justify-center">
+              <span class="font-title text-black text-xs">RB</span>
+            </div>
+            <h1 class="font-title text-base text-white tracking-[.2em]">RAYBOY<span class="text-neo-orange mx-1">.</span>92</h1>
           </div>
-          <h1 class="font-title text-base text-white tracking-[.2em]">RAYBOY<span class="text-neo-orange mx-1">.</span>92</h1>
+          <!-- Bouton retour vers le portail -->
+          <button
+            v-if="!store.showLandingPortal"
+            @click="retourPortail"
+            class="group flex items-center gap-2 px-3 py-1.5 text-white/60 hover:text-white font-retro text-[8px] tracking-widest border border-white/10 hover:border-neo-orange/50 rounded transition-all duration-300 hover:bg-white/5 active:scale-95"
+            aria-label="Retour au portail de choix du mode"
+          >
+            <span class="transition-transform duration-300 group-hover:-translate-x-1">←</span>
+            <span>RETOUR</span>
+          </button>
         </div>
 
         <nav class="flex gap-2">
@@ -321,8 +373,19 @@ onMounted(() => {
 
     <!-- 3. MOBILE INTERFACE (Touch Optimized) -->
     
+    <!-- Mobile Bouton Retour (en haut à gauche) -->
+    <div v-if="!store.showLandingPortal" class="lg:hidden fixed top-6 left-6 z-[60]">
+       <button 
+         @click="retourPortail"
+         class="px-4 py-2 glass-premium rounded-full border border-white/20 text-[8px] font-retro tracking-widest uppercase transition-all active:scale-90 text-white/60 hover:text-white hover:border-neo-orange/50"
+         aria-label="Retour au portail de choix du mode"
+       >
+         ← RETOUR
+       </button>
+    </div>
+
     <!-- Mobile Showroom Mode Toggle -->
-    <div class="lg:hidden fixed top-6 right-6 z-[60]">
+    <div class="lg:hidden fixed top-20 right-6 z-[60]">
        <button 
          @click="toggleShowroom" 
          class="px-4 py-2 glass-premium rounded-full border border-white/20 text-[8px] font-retro tracking-widest uppercase transition-all active:scale-90"

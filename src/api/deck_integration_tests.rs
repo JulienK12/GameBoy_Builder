@@ -18,13 +18,13 @@ use std::sync::Arc;
 
 async fn setup_app() -> Option<axum::Router> {
     dotenvy::dotenv().ok();
-    if std::env::var("DATABASE_URL").is_err() {
+    if std::env::var("DATABASE_URL_TEST").is_err() && std::env::var("DATABASE_URL").is_err() {
         return None;
     }
     if std::env::var("JWT_SECRET").is_err() {
         std::env::set_var("JWT_SECRET", "test-secret-pour-integration-min-32-caracteres!!");
     }
-    let pool = data::create_pool().await.ok()?;
+    let pool = data::create_pool_for_tests().await.ok()?;
     let _ = sqlx::migrate!("./migrations").run(&pool).await.ok()?;
     let catalog = data::load_catalog_from_db(&pool).await.ok()?;
     let state = Arc::new(AppState {

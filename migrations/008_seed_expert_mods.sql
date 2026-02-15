@@ -26,7 +26,7 @@ VALUES
     'Améliore la dissipation thermique du processeur.',
     'Impact performances : Réduit la température de ~15%. Processus installation : Pose de dissipateur thermique. Dépendances : Aucune. Avantages : Stabilité prolongée. Inconvénients : Nécessite espace.',
     ARRAY[]::text[]
-);
+) ON CONFLICT (id) DO NOTHING;
 
 -- Audio Mods
 INSERT INTO expert_mods (id, name, category, price, technical_specs, power_requirements, description, tooltip_content, dependencies)
@@ -52,7 +52,7 @@ VALUES
     'Amélioration générale de la qualité sonore.',
     'Impact performances : Qualité sonore améliorée. Processus installation : Ajout de condensateurs audio. Dépendances : Aucune. Avantages : Son plus propre. Inconvénients : Aucun.',
     ARRAY[]::text[]
-);
+) ON CONFLICT (id) DO NOTHING;
 
 -- Power Mods
 INSERT INTO expert_mods (id, name, category, price, technical_specs, power_requirements, description, tooltip_content, dependencies)
@@ -89,4 +89,4 @@ VALUES
     'Chargeur moderne USB-C pour recharge rapide.',
     'Impact performances : Recharge moderne. Processus installation : Remplacement du port de charge. Dépendances : Aucune. Avantages : Compatible chargeurs modernes. Inconvénients : Nécessite modification de la coque.',
     ARRAY[]::text[]
-);
+) ON CONFLICT (id) DO NOTHING;

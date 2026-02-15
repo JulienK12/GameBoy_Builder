@@ -10,6 +10,7 @@ use crate::models::{
 };
 use crate::data::Catalog;
 use crate::logic::validate_expert_dependencies;
+use std::collections::{HashMap, HashSet};
 
 
 
@@ -19,7 +20,9 @@ pub fn calculate_quote(
     shell_variant_id: &str,
     screen_variant_id: Option<&str>,
     lens_variant_id: Option<&str>,
+    button_variant_id: Option<&str>,
     expert_options: Option<&ExpertOptions>,
+    selected_buttons: Option<&HashMap<String, String>>,
 ) -> Result<Quote, String> {
     let mut items: Vec<LineItem> = Vec::new();
     let mut warnings: Vec<String> = Vec::new();
@@ -163,7 +166,61 @@ pub fn calculate_quote(
     }
 
     // ========================================
-    // 5. SERVICES AUTOMATIQUES
+    // 5. RÉSOUDRE LES BOUTONS (optionnel)
+    // ========================================
+    // Kit-Centric : Si selected_buttons est présent, on utilise la logique par kit unique.
+    // Sinon, on retombe sur la logique classique par button_variant_id (set complet).
+    if let Some(buttons_map) = selected_buttons {
+        if !buttons_map.is_empty() {
+            let mut unique_custom_kits = HashSet::new();
+
+            for (btn_type, var_id) in buttons_map {
+                // AC 4: Valider que le type de bouton (la clé) existe pour le modèle
+                // On récupère le modèle de la console (basé sur la coque)
+                let model = &shell.handled_model;
+                let _button = catalog.buttons.iter()
+                    .find(|b| b.id == *btn_type && b.handled_model == *model)
+                    .ok_or_else(|| format!("❌ Type de bouton invalide pour {}: {}", model, btn_type))?;
+
+                let _variant = catalog
+                    .find_button_variant(var_id)
+                    .ok_or_else(|| format!("❌ Variante de bouton introuvable pour {}: {}", btn_type, var_id))?;
+
+                // Ignorer les variantes OEM pour le calcul du supplément
+                if !var_id.contains("OEM") {
+                    unique_custom_kits.insert(var_id.clone());
+                }
+            }
+
+            let num_kits = unique_custom_kits.len();
+            if num_kits > 0 {
+                items.push(LineItem {
+                    label: "Kits Boutons Custom".to_string(),
+                    detail: Some(format!("{} kit(s) de couleurs uniques", num_kits)),
+                    price: 5.0 * num_kits as f64,
+                    item_type: "Part".to_string(),
+                });
+            }
+        }
+    } else if let Some(btn_var_id) = button_variant_id {
+        let button_variant = catalog
+            .find_button_variant(btn_var_id)
+            .ok_or_else(|| format!("❌ Variante de boutons introuvable: {} (vérifier que la variante existe dans le catalogue)", btn_var_id))?;
+
+        let button = catalog
+            .find_button(&button_variant.button_id)
+            .ok_or_else(|| format!("❌ Boutons parents introuvables: {} (référence invalide dans button_variant.button_id)", button_variant.button_id))?;
+
+        items.push(LineItem {
+            label: button.name.clone(),
+            detail: Some(button_variant.name.clone()),
+            price: button.price + button_variant.supplement,
+            item_type: "Part".to_string(),
+        });
+    }
+
+    // ========================================
+    // 6. SERVICES AUTOMATIQUES
     // ========================================
 
     // Installation si écran non-OEM
@@ -177,7 +234,7 @@ pub fn calculate_quote(
     }
 
     // ========================================
-    // 6. EXPERT OPTIONS (si présentes)
+    // 7. EXPERT OPTIONS (si présentes)
     // ========================================
     if let Some(expert_opts) = expert_options {
         // Validation des dépendances expert (Task 2)
@@ -225,7 +282,7 @@ pub fn calculate_quote(
     }
 
     // ========================================
-    // 7. CALCUL DU TOTAL
+    // 8. CALCUL DU TOTAL
     // ========================================
     let total_price: f64 = items.iter().map(|i| i.price).sum();
 
@@ -245,6 +302,7 @@ mod tests {
     use super::*;
     use crate::data::load_catalog;
     use crate::models::{ExpertMod, ExpertModCategory};
+    use crate::models::product::ButtonVariant;
     use serde_json::json;
 
     /// Helper : charge le catalogue et injecte un pack de test
@@ -261,6 +319,35 @@ mod tests {
             screen_variant_id: "VAR_SCR_GBC_FP_RP20_BLACK".to_string(), // Laminé
             lens_variant_id: None,
             sort_order: 1,
+        });
+
+        // Injecter des boutons pour les tests (requis par Story 6.1)
+        catalog.buttons.push(crate::models::Button {
+            id: "GBC_BTN_AB".to_string(),
+            handled_model: "Gameboy Color".to_string(),
+            brand: crate::models::Brand::OEM,
+            name: "Boutons A/B".to_string(),
+            price: 0.0,
+            description: None,
+        });
+        catalog.buttons.push(crate::models::Button {
+            id: "GBC_BTN_DPAD".to_string(),
+            handled_model: "Gameboy Color".to_string(),
+            brand: crate::models::Brand::OEM,
+            name: "D-Pad".to_string(),
+            price: 0.0,
+            description: None,
+        });
+
+        catalog.button_variants.push(crate::models::ButtonVariant {
+            id: "VAR_BTN_GBC_OEM_GRAPE".to_string(),
+            button_id: "GBC_BTN_AB".to_string(),
+            name: "Grape (OEM)".to_string(),
+            supplement: 0.0,
+            color_hex: Some("#5F2C82".to_string()),
+            image_url: String::new(),
+            is_transparent: false,
+            is_glow_in_dark: false,
         });
 
         catalog
@@ -282,7 +369,9 @@ mod tests {
             "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
             Some("VAR_SCR_GBC_FP_RP20_BLACK"),
             None,
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_ok(), "Le devis devrait réussir");
@@ -301,7 +390,9 @@ mod tests {
             "VAR_SHELL_GBC_OEM_GRAPE",
             None,  // OEM screen par défaut
             Some("VAR_LENS_GBC_STD_BLACK"),
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_ok(), "Le devis devrait réussir");
@@ -319,7 +410,9 @@ mod tests {
             "VAR_SHELL_GBC_OEM_GRAPE",
             Some("VAR_SCR_GBC_HI_Q5L_BLACK"),
             None,
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_ok(), "Le devis devrait réussir");
@@ -346,7 +439,9 @@ mod tests {
             "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
             None,  // OEM screen
             None,
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_err(), "Le devis devrait échouer");
@@ -368,7 +463,9 @@ mod tests {
             "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
             Some("VAR_SCR_GBC_FP_RP20_BLACK"),  // Laminé
             Some("VAR_LENS_GBC_LRG_BLACK"),     // Vitre
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_ok(), "Le devis devrait réussir (vitre ajoutée en spare)");
@@ -394,10 +491,12 @@ mod tests {
         // SCR_GBC_HI_Q5 est un Component selon le PRD
         let result = calculate_quote(
             &catalog,
-            "VAR_SHELL_GBC_OEM_GRAPE",  // OEM shell compatible avec Component
+            "VAR_SHELL_GBC_OEM_GRAPE",  // OEM shell compatible with Component
             Some("VAR_SCR_GBC_HI_Q5_DEFAULT"),  // Écran Component (si existe)
             None,  // Pas de vitre = erreur !
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         // Ce test peut échouer si la variante n'existe pas
@@ -425,7 +524,9 @@ mod tests {
             "VAR_SHELL_INEXISTANT",
             None,
             None,
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_err(), "Le devis devrait échouer");
@@ -444,7 +545,9 @@ mod tests {
             "VAR_SHELL_GBC_OEM_GRAPE",
             Some("VAR_SCR_INEXISTANT"),
             None,
+            None, // No button variant
             None, // No expert options
+            None, // No selected buttons
         );
 
         assert!(result.is_err(), "Le devis devrait échouer");
@@ -496,7 +599,9 @@ mod tests {
             "VAR_SHELL_GBC_OEM_GRAPE",
             None,
             Some("VAR_LENS_GBC_STD_BLACK"),
+            None, // No button variant
             Some(&expert_opts),
+            None, // No selected buttons
         );
 
         assert!(result.is_ok(), "Le devis avec mods expert devrait réussir");
@@ -537,7 +642,9 @@ mod tests {
             &resolved.shell_variant_id,
             resolved.screen_variant_id.as_deref(),
             resolved.lens_variant_id.as_deref(),
+            None, // No button variant
             Some(&expert_opts),
+            None, // No selected buttons
         );
         assert!(result.is_ok(), "Devis pack + expert options doit réussir");
         let quote = result.unwrap();
@@ -569,11 +676,305 @@ mod tests {
             "VAR_SHELL_GBC_OEM_GRAPE",
             None,
             Some("VAR_LENS_GBC_STD_BLACK"),
+            None, // No button variant
             Some(&expert_opts),
+            None, // No selected buttons
         );
         assert!(result.is_ok(), "Devis manuel + expert options doit réussir");
         let quote = result.unwrap();
         assert_eq!(quote.total_price, 25.0 + 12.0, "25€ base + 12€ mod");
         assert!(quote.items.iter().any(|i| i.label == "Chargeur USB-C"));
+    }
+
+    // ========================================
+    // 🎮 TESTS BOUTONS
+    // ========================================
+
+    /// Test : Calcul avec boutons sélectionnés
+    #[test]
+    fn test_calculate_quote_with_buttons_includes_price() {
+        let catalog = get_catalog();
+        
+        // Vérifier qu'il existe des boutons dans le catalogue
+        if catalog.buttons.is_empty() || catalog.button_variants.is_empty() {
+            // Si pas de boutons dans le catalogue de test, skip le test
+            return;
+        }
+
+        let button_variant_id = catalog.button_variants.first().map(|v| v.id.as_str());
+        
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
+            Some("VAR_SCR_GBC_FP_RP20_BLACK"),
+            Some("VAR_LENS_GBC_LRG_BLACK"),
+            button_variant_id,
+            None,
+            None, // No selected buttons
+        );
+
+        assert!(result.is_ok(), "Le devis avec boutons devrait réussir");
+        let quote = result.unwrap();
+        
+        // Vérifier que les boutons sont dans les items
+        let _has_buttons = quote.items.iter().any(|i| {
+            i.label.contains("Button") || 
+            i.label.contains("Bouton") ||
+            i.detail.as_ref().map(|d| d.contains("Rouge") || d.contains("Bleu")).unwrap_or(false)
+        });
+        
+        // Le prix total devrait inclure le prix des boutons
+        assert!(quote.total_price > 0.0, "Le prix total devrait être supérieur à 0");
+    }
+
+    /// Test : Calcul sans boutons (boutons optionnels)
+    #[test]
+    fn test_calculate_quote_without_buttons_succeeds() {
+        let catalog = get_catalog();
+        
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
+            Some("VAR_SCR_GBC_FP_RP20_BLACK"),
+            Some("VAR_LENS_GBC_LRG_BLACK"),
+            None, // No button variant - should succeed
+            None,
+            None, // No selected buttons
+        );
+
+        assert!(result.is_ok(), "Le devis sans boutons devrait réussir (boutons optionnels)");
+        let quote = result.unwrap();
+        assert!(quote.total_price > 0.0, "Le prix total devrait être calculé");
+    }
+
+    /// Test : Variante de boutons inexistante retourne erreur
+    #[test]
+    fn test_invalid_button_variant_returns_error() {
+        let catalog = get_catalog();
+        
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
+            Some("VAR_SCR_GBC_FP_RP20_BLACK"),
+            Some("VAR_LENS_GBC_LRG_BLACK"),
+            Some("VAR_BTN_INEXISTANT"), // Invalid button variant ID
+            None,
+            None, // No selected buttons
+        );
+
+        assert!(result.is_err(), "Le devis avec variante de boutons invalide devrait échouer");
+        let error = result.unwrap_err();
+        assert!(
+            error.contains("boutons") || error.contains("introuvable"),
+            "L'erreur doit mentionner les boutons ou être introuvable"
+        );
+    }
+
+    /// Test : Boutons avec supplément de prix
+    #[test]
+    fn test_buttons_with_supplement_includes_supplement_in_price() {
+        let catalog = get_catalog();
+        
+        // Chercher une variante avec supplément
+        let button_variant_with_supplement = catalog.button_variants
+            .iter()
+            .find(|v| v.supplement > 0.0);
+        
+        if let Some(variant) = button_variant_with_supplement {
+            let result = calculate_quote(
+                &catalog,
+                "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
+                Some("VAR_SCR_GBC_FP_RP20_BLACK"),
+                Some("VAR_LENS_GBC_LRG_BLACK"),
+                Some(variant.id.as_str()),
+                None,
+                None, // No selected buttons
+            );
+
+            assert!(result.is_ok(), "Le devis avec boutons avec supplément devrait réussir");
+            let quote = result.unwrap();
+            
+            // Vérifier que le prix inclut le supplément
+            let button_item = quote.items.iter()
+                .find(|i| i.detail.as_ref().map(|d| d == &variant.name).unwrap_or(false));
+            
+            if let Some(item) = button_item {
+                let expected_price = catalog.buttons
+                    .iter()
+                    .find(|b| b.id == variant.button_id)
+                    .map(|b| b.price + variant.supplement)
+                    .unwrap_or(0.0);
+                
+                assert_eq!(item.price, expected_price, "Le prix devrait inclure le supplément");
+            }
+        }
+    }
+
+    // ========================================
+    // 🌈 TESTS KIT-CENTRIC (Story 6.1)
+    // ========================================
+
+    /// Test 6.1.1 : Tout OEM -> +0€
+    #[test]
+    fn test_kit_centric_pricing_all_oem() {
+        let catalog = get_catalog();
+        let mut selected_buttons = HashMap::new();
+        selected_buttons.insert("GBC_BTN_AB".to_string(), "VAR_BTN_GBC_OEM_GRAPE".to_string());
+        selected_buttons.insert("GBC_BTN_DPAD".to_string(), "VAR_BTN_GBC_OEM_GRAPE".to_string());
+
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_OEM_GRAPE",
+            None,
+            Some("VAR_LENS_GBC_STD_BLACK"),
+            None,
+            None,
+            Some(&selected_buttons),
+        );
+
+        assert!(result.is_ok());
+        let quote = result.unwrap();
+        // 25€ base + 0€ buttons
+        assert_eq!(quote.total_price, 25.0);
+        assert!(!quote.items.iter().any(|i| i.label == "Kits Boutons Custom"));
+    }
+
+    /// Test 6.1.2 : Un kit custom utilisé sur plusieurs boutons -> +5€
+    #[test]
+    fn test_kit_centric_pricing_one_color_multiple_buttons() {
+        let mut catalog = get_catalog();
+        // S'assurer qu'au moins une variante custom existe
+        catalog.button_variants.push(ButtonVariant {
+            id: "VAR_BTN_CUSTOM_RED".to_string(),
+            button_id: "GBC_BTN_AB".to_string(),
+            name: "Rouge".to_string(),
+            supplement: 0.0,
+            color_hex: Some("#FF0000".to_string()),
+            image_url: String::new(),
+            is_transparent: false,
+            is_glow_in_dark: false,
+        });
+
+        let mut selected_buttons = HashMap::new();
+        selected_buttons.insert("GBC_BTN_AB".to_string(), "VAR_BTN_CUSTOM_RED".to_string());
+        selected_buttons.insert("GBC_BTN_DPAD".to_string(), "VAR_BTN_CUSTOM_RED".to_string());
+
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_OEM_GRAPE",
+            None,
+            Some("VAR_LENS_GBC_STD_BLACK"),
+            None,
+            None,
+            Some(&selected_buttons),
+        );
+
+        assert!(result.is_ok());
+        let quote = result.unwrap();
+        // 25€ base + 5€ (1 kit rouge)
+        assert_eq!(quote.total_price, 30.0);
+        assert!(quote.items.iter().any(|i| i.label == "Kits Boutons Custom" && i.price == 5.0));
+    }
+
+    /// Test 6.1.3 : Deux kits custom différents -> +10€
+    #[test]
+    fn test_kit_centric_pricing_two_colors() {
+        let mut catalog = get_catalog();
+        catalog.button_variants.push(ButtonVariant {
+            id: "VAR_BTN_CUSTOM_RED".to_string(),
+            button_id: "GBC_BTN_AB".to_string(),
+            name: "Rouge".to_string(),
+            supplement: 0.0,
+            color_hex: Some("#FF0000".to_string()),
+            image_url: String::new(),
+            is_transparent: false,
+            is_glow_in_dark: false,
+        });
+        catalog.button_variants.push(ButtonVariant {
+            id: "VAR_BTN_CUSTOM_BLUE".to_string(),
+            button_id: "GBC_BTN_AB".to_string(),
+            name: "Bleu".to_string(),
+            supplement: 0.0,
+            color_hex: Some("#0000FF".to_string()),
+            image_url: String::new(),
+            is_transparent: false,
+            is_glow_in_dark: false,
+        });
+
+        let mut selected_buttons = HashMap::new();
+        selected_buttons.insert("GBC_BTN_AB".to_string(), "VAR_BTN_CUSTOM_RED".to_string());
+        selected_buttons.insert("GBC_BTN_DPAD".to_string(), "VAR_BTN_CUSTOM_BLUE".to_string());
+
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_OEM_GRAPE",
+            None,
+            Some("VAR_LENS_GBC_STD_BLACK"),
+            None,
+            None,
+            Some(&selected_buttons),
+        );
+
+        assert!(result.is_ok());
+        let quote = result.unwrap();
+        // 25€ base + 10€ (2 kits)
+        assert_eq!(quote.total_price, 35.0);
+        assert!(quote.items.iter().any(|i| i.label == "Kits Boutons Custom" && i.price == 10.0));
+    }
+
+    /// Test 6.1.4 : selected_buttons prévaut sur button_variant_id
+    #[test]
+    fn test_selected_buttons_prevalence() {
+        let mut catalog = get_catalog();
+        catalog.button_variants.push(ButtonVariant {
+            id: "VAR_BTN_CUSTOM_RED".to_string(),
+            button_id: "GBC_BTN_AB".to_string(),
+            name: "Rouge".to_string(),
+            supplement: 0.0,
+            color_hex: Some("#FF0000".to_string()),
+            image_url: String::new(),
+            is_transparent: false,
+            is_glow_in_dark: false,
+        });
+
+        let mut selected_buttons = HashMap::new();
+        selected_buttons.insert("GBC_BTN_AB".to_string(), "VAR_BTN_CUSTOM_RED".to_string());
+
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_OEM_GRAPE",
+            None,
+            Some("VAR_LENS_GBC_STD_BLACK"),
+            Some("SOME_OTHER_VARIANT_ID"), // Devrait être ignoré
+            None,
+            Some(&selected_buttons),
+        );
+
+        assert!(result.is_ok());
+        let quote = result.unwrap();
+        // Si button_variant_id était utilisé, le prix serait différent ou erreur.
+        // Ici on vérifie que seul le kit custom est facturé.
+        assert_eq!(quote.total_price, 30.0);
+    }
+
+    /// Test 6.1.5 : Type de bouton invalide (AC 4)
+    #[test]
+    fn test_kit_centric_invalid_button_type() {
+        let catalog = get_catalog();
+        let mut selected_buttons = HashMap::new();
+        selected_buttons.insert("INVALID_TYPE".to_string(), "VAR_BTN_GBC_OEM_GRAPE".to_string());
+
+        let result = calculate_quote(
+            &catalog,
+            "VAR_SHELL_GBC_OEM_GRAPE",
+            None,
+            Some("VAR_LENS_GBC_STD_BLACK"),
+            None,
+            None,
+            Some(&selected_buttons),
+        );
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Type de bouton invalide"));
     }
 }

@@ -2,162 +2,83 @@
 
 > **Base URL :** `http://localhost:3000`
 > **Format :** JSON
-> **Framework :** Axum 0.7 (Rust)
+> **Dernière mise à jour :** 2026-02-15 (Post-Epic 6)
 
 ---
 
-## Endpoints
+## Catalogue & Prix
 
-## Endpoints
+### 1. `GET /catalog/packs` — Starter Kits
+Retourne les packs configurés en base de données (ex: Budget Gamer, Purist).
 
-### 1. `GET /health` — Health Check
-
-**Description :** Vérifie que le serveur est opérationnel.
-
-**Réponse (200) :**
+### 2. `GET /catalog/buttons/:console_id` — Boutons Granulaires
+**Description :** Retourne la liste des boutons personnalisables pour un modèle spécifique.
+- **Paramètre :** `gbc`, `dmg`, `gba`, `gba_sp`.
+- **Réponse (200) :**
 ```json
 {
-  "status": "ok",
-  "version": "0.1.0"
-}
-```
-
----
-
-### 2. `GET /catalog/packs` — Liste des Starter Kits
-
-**Description :** Retourne la liste dynamique des packs de démarrage disponibles (Data-Driven).
-
-**Réponse (200) :**
-```json
-{
-  "packs": [
-    {
-      "id": "PACK_BUDGET_01",
-      "name": "Budget Gamer",
-      "description": "Une console modée à petit prix, parfaite pour débuter.",
-      "image_url": "/images/packs/PACK_BUDGET_01.jpg",
-      "base_price": 89.0,
-      "components": {
-        "shell_variant_id": "VAR_SHELL_GBC_OEM_GRAPE",
-        "screen_variant_id": "VAR_SCR_GBC_OEM_STD",
-        "lens_variant_id": "VAR_LENS_GBC_STD_CLEAR"
-      }
-    }
+  "console_id": "gbc",
+  "buttons": [
+    { "id": "d_pad", "name": "D-Pad", "variants": [...] },
+    { "id": "button_a", "name": "Bouton A", "variants": [...] }
   ]
 }
 ```
 
----
-
-### 3. `GET /catalog/shells` — Liste des coques
-
-**Description :** Retourne toutes les coques, leurs variantes et la matrice de compatibilité coque/écran.
-
----
-
-### 4. `GET /catalog/screens` — Liste des écrans
-
----
-
-### 5. `GET /catalog/lenses` — Liste des vitres
-
----
-
-### 6. `POST /quote` — Calculer un devis (Support Packs & Deck)
-
-**Description :** Calcule un devis basé sur les variantes, un pack, ou plusieurs configurations.
-
-**Requête (Simple) :**
+### 3. `POST /quote` — Calculer un devis
+**Description :** Calcule le prix total, gère la logique "Kit-Centric" pour les boutons.
+- **Logique Kit-Centric :** Chaque groupe de couleur unique de bouton (hors "OEM") ajoute 5€ au total.
+- **Corps (Extraits) :**
 ```json
 {
-  "shell_variant_id": "VAR_SHELL_GBC_FP_ATOMIC_PURPLE",
-  "screen_variant_id": "VAR_SCR_GBC_FP_RP20_BLACK",
-  "lens_variant_id": null
-}
-```
-
-**Requête (Pack) :**
-```json
-{
-  "pack_id": "PACK_BUDGET_01",
-  "overrides": {
-    "shell_variant_id": "VAR_SHELL_GBC_FP_ATOMIC_PURPLE"
+  "pack_id": "PACK_...", 
+  "shell_variant_id": "VAR_...",
+  "selected_buttons": {
+    "d_pad": "VAR_BUT_BLUE",
+    "button_a": "VAR_BUT_BLUE",
+    "button_b": "VAR_BUT_RED"
   }
 }
 ```
-
-**Réponse succès (200) :**
-```json
-{
-  "success": true,
-  "quotes": [
-    {
-      "items": [
-        { "label": "FP Shell", "detail": "Atomic Purple", "price": 25.0, "item_type": "Part" },
-        { "label": "Installation Écran", "detail": null, "price": 20.0, "item_type": "Service" }
-      ],
-      "total_price": 110.0,
-      "warnings": []
-    }
-  ],
-  "grand_total": 110.0,
-  "error": null
-}
-```
+*Ici, "BLUE" et "RED" constituent 2 kits, donc +10€.*
 
 ---
 
-### 7. `POST /auth/register` — Inscription
+## Authentification & Compte
 
-**Description :** Crée un compte utilisateur. JWT via cookie `HttpOnly`.
+### 4. `POST /auth/register` / `/login`
+Inscrit ou connecte l'utilisateur. Retourne un cookie `auth_token` (HttpOnly, Secure, SameSite=Lax).
 
----
-
-### 8. `POST /auth/login` — Connexion
-
----
-
-### 9. `POST /auth/logout` — Déconnexion
+### 5. `GET /auth/me`
+Vérifie l'état de connexion et retourne l'utilisateur.
 
 ---
 
-### 10. `GET /deck` — Lire le Deck (🔐 Auth requise)
+## Deck Manager (🔐 Connexion requise)
 
-**Description :** Retourne les configurations sauvegardées de l'utilisateur (max 3).
+### 6. `GET /deck`
+Liste les 3 configurations max sauvegardées.
 
----
+### 7. `POST /deck`
+Ajoute ou met à jour une carte du deck.
 
-### 11. `POST /deck` — Sauvegarder dans le Deck (🔐 Auth requise)
-
----
-
-### 12. `DELETE /deck/:id` — Supprimer du Deck (🔐 Auth requise)
-
----
-
-### 13. `POST /quote/submit` — Envoyer pour assemblage (🔐 Auth requise)
-
-**Description :** Valide une configuration finale (Mode Signature) et l'envoie au moddeur.
+### 8. `DELETE /deck/:id`
+Supprime une configuration spécifique.
 
 ---
 
-## Synthèse des Accès (RBAC)
+## Validation & Commande (🔐 Connexion requise)
 
-| Endpoint | Méthode | Authentification | Rôle |
-|---|---|---|---|
-| `/catalog/*` | GET | Optionnelle | Invité |
-| `/quote` | POST | Optionnelle | Invité |
-| `/auth/*` | POST | Non requise | Invité |
-| `/deck/*` | ALL | **Requise** | Utilisateur |
-| `/quote/submit`| POST | **Requise** | Utilisateur |
+### 9. `POST /quote/submit` — Validation Finale
+**Description :** Action finale déclenchée depuis le mode "Signature".
+- **Action :** Sauvegarde la configuration en base avec le statut `ready_for_build`.
+- **Réponse :** `{ "success": true, "submission_id": "..." }`
 
 ---
 
-### 6. `GET /assets/images/{category}/{variant_id}.jpg` — Images statiques
+## Assets Statiques
 
-**Description :** Sert les images produit statiques.
-
-**Catégories :** `shells`, `screens`, `lenses`
-
-**Exemple :** `GET /assets/images/shells/VAR_SHELL_GBC_OEM_GRAPE.jpg`
+### 10. `GET /assets/images/{category}/{filename}.jpg`
+Sert les images du catalogue.
+- **Catégories :** `shells`, `screens`, `lenses`, `buttons`.
+- **Note :** Les boutons sont servies en `.jpg` (identique aux autres catégories).

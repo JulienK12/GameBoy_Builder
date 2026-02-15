@@ -59,6 +59,7 @@ FR8: Epic 2 - Optimistic Updates frontend.
 FR9: Epic 1 - Landing Portal HUD.
 FR10: Epic 4 - Showcase Signature (Validation).
 FR11: Epic 3 - Authentification simple (Story 3.0).
+FR12: Epic 6 - Personnalisation granulaire des boutons (Logique Kit-Centric).
 
 ## Liste des Epics
 
@@ -77,6 +78,10 @@ Permettre de gérer plusieurs projets simultanément (max 3) et de les retrouver
 ### Epic 4: "L'Expérience Signature" - Showcase & Validation Finale
 Transformer l'acte de validation en un moment de célébration visuelle haute-fidélité.
 **FR couverts:** FR10.
+
+### Epic 6: "L'Art du Détail" - Personnalisation Granulaire des Boutons
+Permettre une personnalisation extrême de chaque élément de commande avec une logique de prix intelligente par kit de couleur.
+**FR couverts:** FR12.
 
 ---
 
@@ -239,3 +244,91 @@ Afin de passer à l'étape finale de la commande.
 **Et** une fois authentifié, le statut de la configuration passe à "Ready for Build"
 **Et** une demande de devis officielle est créée via `POST /quote/submit`
 **Et** l'utilisateur est redirigé vers le récapitulatif final du panier.
+
+---
+
+## Epic 5: "Focus Options" — Mise en avant des options (sans 3D)
+
+Le modèle 3D n'est pas encore prêt. Mettre en avant les options choisies (mods, pack, etc.) plutôt que le rendu 3D sur la page atelier / récap.
+
+### Story 5.1: Mise en avant des options sur atelier et récap
+En tant qu'utilisateur,
+je vois clairement les options que j'ai choisies (mods, pack, etc.) sur la page atelier / récap,
+plutôt qu'un modèle 3D,
+afin que la configuration soit l'élément mis en avant tant que le 3D n'est pas disponible.
+
+**Critères d'Acceptation:**
+**Étant donné** une configuration en cours (pack ou atelier libre)
+**Quand** je consulte l'atelier ou le récapitulatif
+**Alors** les options choisies (coque, écran, mods, pack) sont mises en avant visuellement
+**Et** le rendu 3D est secondaire ou masqué tant qu'il n'est pas prêt
+**Et** la configuration (texte + aperçus) est l'élément principal affiché.
+
+---
+
+## Epic 6: "L'Art du Détail" - Personnalisation Granulaire des Boutons
+
+### Story 6.1: Backend - Logique de calcul de prix "Kit-Centric"
+En tant que Développeur Backend,
+Je veux que le moteur de prix calcule le supplément pour les boutons en fonction du nombre de kits de couleurs uniques utilisés,
+Afin de refléter le coût réel des pièces détachées.
+
+**Critères d'Acceptation:**
+**Étant donné** une `QuoteRequest` avec l'objet `selected_buttons`
+**Quand** le calcul du devis est lancé
+**Alors** le système identifie le nombre de couleurs uniques (hors "OEM")
+**Et** il ajoute 5€ par groupe de couleur unique au total (ex: 2 couleurs custom = +10€)
+**Et** il valide que chaque identifiant de bouton est compatible avec la console sélectionnée.
+
+### Story 6.2: Data - Catalogue des Boutons par Modèle
+En tant que Moddeur,
+Je veux que le catalogue propose des options de boutons spécifiques à chaque modèle de console (GBC, GBA, SP, DMG),
+Afin d'éviter des configurations techniquement impossibles.
+
+**Critères d'Acceptation:**
+**Étant donné** le catalogue de produits
+**Quand** il est interrogé par le frontend
+**Alors** il retourne la liste des boutons personnalisables pour le modèle actif :
+  - **GBC** : D-pad, Bouton A, Bouton B, Interrupteur ON/OFF, Cache IR
+  - **Pocket/DMG** : D-pad, Bouton A, Bouton B, Interrupteur ON/OFF
+  - **GBA** : D-pad, A, B, ON/OFF, L, R, Bordure Gauche, Bordure Droite
+  - **GBA SP** : D-pad, A, B, ON/OFF, Volume, L, R, Start, Select, Rétroéclairage
+**Et** chaque bouton liste les variantes de couleurs disponibles (OEM, CGS Blue, CGS Red, etc.).
+
+### Story 6.3: Frontend - Sélecteur granulaire "Airy Cyberpunk"
+En tant que Créateur,
+Je veux choisir la couleur de chaque bouton individuellement avec un feedback immédiat sur le prix,
+Afin de créer une console qui me ressemble vraiment.
+
+**Critères d'Acceptation:**
+**Étant donné** le Mode Expert actif (ou une option de personnalisation granulaire)
+**Quand** je sélectionne un bouton spécifique
+**Alors** une liste de couleurs compatibles s'affiche
+**Et** la sélection d'une couleur non-OEM met à jour le prix total de manière optimiste
+**Et** l'UI affiche clairement le récapitulatif des kits de boutons achetés.
+
+---
+
+## Epic 7: "Architecture Propre" - Unification des Assets & Dette Technique
+
+### Story 7.1: Migration Database & Backend Assets
+En tant qu'Architecte,
+Je veux que toutes les images soient servies par le backend (`/assets/`),
+Afin de garantir une source de vérité unique et de corriger l'affichage des coques non-OEM.
+
+**Critères d'Acceptation:**
+**Étant donné** une base de données avec des chemins hétérogènes (`/images/...` et `/assets/...`)
+**Quand** la migration est appliquée
+**Alors** tous les chemins d'images commencent strictement par `/assets/`
+**Et** les fichiers physiques correspondants existent dans le dossier `assets/` du backend (déplacés depuis le frontend si nécessaire).
+
+### Story 7.2: Nettoyage et Validation Frontend
+En tant que Développeur,
+Je veux supprimer les assets dupliqués du frontend et valider que l'application utilise bien le backend,
+Afin de réduire la taille du build et d'éviter toute confusion future.
+
+**Critères d'Acceptation:**
+**Étant donné** l'application configurée pour utiliser le backend pour les images
+**Quand** je navigue dans le catalogue (Coques, Boutons)
+**Alors** toutes les images s'affichent correctement (Status 200) depuis `http://localhost:3000/assets/...`
+**Et** le dossier `frontend/public/images` ne contient plus les fichiers migrés.

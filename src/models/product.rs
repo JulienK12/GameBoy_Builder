@@ -76,3 +76,27 @@ pub struct ShellScreenCompatibility {
     pub screen_id: String,
     pub status: String,
 }
+
+// === BOUTONS ===
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct Button {
+    pub id: String,
+    pub handled_model: String,
+    pub brand: Brand,
+    pub name: String,
+    pub price: f64,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct ButtonVariant {
+    pub id: String,
+    pub button_id: String,
+    pub name: String,
+    pub supplement: f64,
+    pub color_hex: Option<String>,
+    pub image_url: String,
+    pub is_transparent: bool,
+    pub is_glow_in_dark: bool,
+}

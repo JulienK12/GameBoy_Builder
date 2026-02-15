@@ -1,2 +1,7 @@
 /target
 .env
+/node_modules
+/test-results
+/venv
+/frontend/node_modules
+/frontend/test-results

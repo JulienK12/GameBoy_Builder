@@ -2,8 +2,34 @@
 import { useConfiguratorStore } from '@/stores/configurator';
 import { computed, watch } from 'vue';
 import ExpertModCard from '@/components/ExpertModCard.vue';
+import ButtonGranularSelector from '@/components/ButtonGranularSelector.vue';
 
 const store = useConfiguratorStore();
+
+// TODO: Le backend devrait exposer un champ `console_id` sur les shells/variants
+// pour éviter cette détection par heuristique. En attendant, on utilise un mapping par mots-clés.
+const CONSOLE_KEYWORDS = [
+  { id: 'sp',     keywords: ['advance', 'sp'] },     // GBA SP (doit être testé avant GBA)
+  { id: 'gba',    keywords: ['advance'] },            // Game Boy Advance
+  { id: 'dmg',    keywords: ['dmg', 'classic'] },     // DMG Original
+  { id: 'pocket', keywords: ['pocket', 'mgb'] },      // Game Boy Pocket
+];
+
+const currentConsoleId = computed(() => {
+  if (store.selectedShellVariantId) {
+    const shell = store.shellVariants.find(v => v.id === store.selectedShellVariantId);
+    if (shell) {
+      const name = (shell.fullName || shell.name || '').toLowerCase();
+      // Tester chaque pattern : le premier match gagne (ordre = priorité)
+      for (const console of CONSOLE_KEYWORDS) {
+        if (console.keywords.every(kw => name.includes(kw))) {
+          return console.id;
+        }
+      }
+    }
+  }
+  return 'gbc'; // Fallback : Game Boy Color
+});
 
 // Charger les mods expert à l'ouverture du mode expert (Story 2.2/2.3)
 watch(() => store.isExpertMode, (on) => { if (on) store.fetchExpertModsAction(); }, { immediate: true });
@@ -43,6 +69,18 @@ const currentSelections = computed(() => {
         category: 'lens',
         label: 'VITRE',
         name: lens.name
+      });
+    }
+  }
+  
+  if (store.selectedButtonVariantId) {
+    const buttons = store.buttonVariants.find(v => v.id === store.selectedButtonVariantId);
+    if (buttons) {
+      selections.push({
+        category: 'buttons',
+        label: 'BOUTONS',
+        name: buttons.fullName || buttons.name || 'Boutons non spécifiés',
+        brand: buttons.brand || 'Unknown'
       });
     }
   }
@@ -125,6 +163,11 @@ const currentSelections = computed(() => {
             >
               Réessayer
             </button>
+          </div>
+
+          <!-- Sélecteur Granulaire Boutons (Story 6.3) -->
+          <div class="mb-8 border-t border-white/10 pt-6">
+             <ButtonGranularSelector :console-id="currentConsoleId" />
           </div>
 
           <!-- Mods expert par catégorie (Story 2.2 Task 6) -->

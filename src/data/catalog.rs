@@ -1,7 +1,7 @@
 use crate::models::{
     CompatibilityStatus,
     Shell, ShellVariant, Screen, ScreenVariant, Lens, LensVariant, Pack, PackOverrides, ResolvedComponents,
-    ExpertMod,
+    ExpertMod, Button, ButtonVariant,
 };
 use super::Catalog;
 
@@ -59,6 +59,19 @@ impl Catalog {
     /// Retourne un mod expert par son id (pour calcul de devis)
     pub fn find_expert_mod(&self, id: &str) -> Option<&ExpertMod> {
         self.expert_mods.iter().find(|m| m.id == id)
+    }
+
+    pub fn find_button(&self, id: &str) -> Option<&Button> {
+        self.buttons.iter().find(|b| b.id == id)
+    }
+
+    pub fn find_button_variant(&self, id: &str) -> Option<&ButtonVariant> {
+        self.button_variants.iter().find(|v| v.id == id)
+    }
+
+    #[allow(dead_code)]
+    pub fn get_variants_for_button(&self, button_id: &str) -> Vec<&ButtonVariant> {
+        self.button_variants.iter().filter(|v| v.button_id == button_id).collect()
     }
 
     /// Résout un pack en ses composants individuels, en appliquant les overrides éventuels

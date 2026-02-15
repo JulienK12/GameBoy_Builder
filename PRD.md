@@ -34,6 +34,20 @@
 
 ---
 
+### 🔘 Le Panel des Boutons (Granular Customization)
+- **Concept** : Permettre une personnalisation détaillée de chaque élément de commande de la console.
+- **Sélection par Modèle** :
+    - **GBC** : D-pad, Bouton A, Bouton B, Interrupteur ON/OFF, Cache IR.
+    - **Pocket/DMG** : D-pad, Bouton A, Bouton B, Interrupteur ON/OFF.
+    - **GBA** : D-pad, A, B, ON/OFF, L, R, Bordure Gauche, Bordure Droite.
+    - **GBA SP** : D-pad, A, B, ON/OFF, Volume, L, R, Start, Select, Rétroéclairage.
+- **Logique de Prix "Kit-Centric"** : 
+    - Boutons d'origine (OEM) : **Inclus (0€)**.
+    - Variantes personnalisées (ex: CGS) : **+5€ par groupe de couleur unique**.
+    - *Exemple* : Si D-pad et A sont "CGS Rouge" et B est "CGS Bleu", le supplément est de 10€ (2 kits achetés).
+
+---
+
 ## 3. Architecture Évoluée
 
 - **Frontend** : Vue 3 + Pinia + TresJS + Vite.
@@ -42,6 +56,7 @@
     - **Single Source of Truth** : Le backend recalcule systématiquement les prix et valide les compatibilités.
     - **Optimistic Updates** : UI fluide avec rollback automatique en cas d'erreur API.
     - **Draco Compression** : 3D haute performance.
+    - **Flexible Button Mapping** : Le backend gère une structure `MappedButtons` pour calculer dynamiquement le nombre de kits nécessaires.
 
 ---
 
@@ -60,7 +75,12 @@
 - Implémentation de la logique de "Packs".
 - Refonte UI Cyberpunk (Contrasts & Glow).
 
-### Sprint 4 : QA & Performance
+### Sprint 4 : Le Panel des Boutons
+- Mise à jour du Catalogue (Boutons par console).
+- Implémentation de la logique de prix cumulative côté Backend.
+- Création du sélecteur granulaire côté Frontend.
+
+### Sprint 5 : QA & Performance
 - Tests de régression visuelle (Playwright).
 - Optimisation CDN et compression Draco.
 
@@ -71,8 +91,9 @@
 | Version | Date | Modifications |
 |:--------|:-----|:--------------|
 | v6.0 | 08 Fév 2026 | Lancement V1.0 - UI Complète, Filtres, 3D. |
-| **v7.0** | **11 Fév 2026** | **Evolution V2.0 : Packs, Deck System, Architecture Cyberpunk.** |
+| v7.0 | 11 Fév 2026 | Evolution V2.0 : Packs, Deck System, Architecture Cyberpunk. |
+| **v7.1** | **13 Fév 2026** | **Ajout de la personnalisation granulaire des boutons et logique de prix "Kit-Centric".** |
 
 ---
 
-**🦀 Rayboy PRD v7.0 — NEXT GEN PLANNING**
+**🦀 Rayboy PRD v7.1 — GRANULAR CONTROL PLANNING**

@@ -1,129 +1,79 @@
 {
-  "scan_metadata": {
-    "started_at": "2026-02-10T20:00:00+01:00",
-    "completed_at": "2026-02-10T21:00:00+01:00",
-    "mode": "initial_scan",
-    "scan_level": "exhaustive",
-    "project_root": "/home/julien/dev/gameboy_builder",
-    "output_folder": "docs/"
-  },
-  "project_classification": {
-    "repository_type": "multi-part",
-    "parts": [
-      {
-        "part_id": "backend",
-        "project_type_id": "backend",
-        "root_path": "src/",
-        "primary_language": "Rust",
-        "framework": "Axum 0.7",
-        "database": "PostgreSQL (SQLx 0.8)"
-      },
-      {
-        "part_id": "frontend",
-        "project_type_id": "web",
-        "root_path": "frontend/",
-        "primary_language": "JavaScript",
-        "framework": "Vue.js 3.5",
-        "build_tool": "Vite 7.2",
-        "css": "Tailwind CSS v4",
-        "3d_engine": "TresJS 5.3 (Three.js 0.182)"
-      }
-    ]
-  },
-  "steps_completed": [
-    {
-      "step": "0.5",
-      "name": "Load documentation requirements",
-      "status": "completed"
+    "scan_metadata": {
+        "started_at": "2026-02-15T21:13:22+01:00",
+        "completed_at": "2026-02-15T21:30:00+01:00",
+        "mode": "full_rescan",
+        "scan_level": "deep",
+        "project_root": "/home/julien/dev/gameboy_builder",
+        "output_folder": "docs/"
     },
-    {
-      "step": "1",
-      "name": "Detect project structure and classify",
-      "status": "completed",
-      "result": "Multi-part: backend (Rust) + web (Vue.js)"
+    "project_classification": {
+        "repository_type": "multi-part",
+        "parts": [
+            {
+                "part_id": "backend",
+                "project_type_id": "backend",
+                "root_path": "src/",
+                "primary_language": "Rust",
+                "framework": "Axum 0.7",
+                "database": "PostgreSQL (SQLx 0.8)"
+            },
+            {
+                "part_id": "frontend",
+                "project_type_id": "web",
+                "root_path": "frontend/",
+                "primary_language": "JavaScript",
+                "framework": "Vue.js 3.5",
+                "build_tool": "Vite 7.2",
+                "css": "Tailwind CSS v4"
+            }
+        ]
     },
-    {
-      "step": "2",
-      "name": "Discover existing documentation",
-      "status": "completed",
-      "result": "Found PRD.md, README.md, 4 guides in docs/"
-    },
-    {
-      "step": "3",
-      "name": "Analyze technology stack",
-      "status": "completed",
-      "result": "Rust/Axum/SQLx/PostgreSQL + Vue3/Pinia/TresJS/Tailwind/Vite"
-    },
-    {
-      "step": "4",
-      "name": "Conditional analysis (API, data models, UI)",
-      "status": "completed",
-      "outputs": [
-        "api-contracts.md",
-        "data-models.md",
-        "architecture-frontend.md (UI components)"
-      ]
-    },
-    {
-      "step": "5",
-      "name": "Source tree analysis",
-      "status": "completed",
-      "output": "source-tree-analysis.md"
-    },
-    {
-      "step": "6",
-      "name": "Development & operational info",
-      "status": "completed",
-      "output": "development-guide.md"
-    },
-    {
-      "step": "7",
-      "name": "Multi-part integration architecture",
-      "status": "completed",
-      "output": "integration-architecture.md"
-    },
-    {
-      "step": "8",
-      "name": "Architecture documentation",
-      "status": "completed",
-      "outputs": [
-        "architecture-backend.md",
-        "architecture-frontend.md"
-      ]
-    },
-    {
-      "step": "9",
-      "name": "Project overview",
-      "status": "completed",
-      "output": "project-overview.md"
-    },
-    {
-      "step": "10",
-      "name": "Master index",
-      "status": "completed",
-      "output": "index.md"
-    },
-    {
-      "step": "11",
-      "name": "Validation",
-      "status": "completed"
-    },
-    {
-      "step": "12",
-      "name": "Finalize",
-      "status": "completed"
-    }
-  ],
-  "generated_documents": [
-    "docs/project-overview.md",
-    "docs/architecture-backend.md",
-    "docs/architecture-frontend.md",
-    "docs/api-contracts.md",
-    "docs/data-models.md",
-    "docs/source-tree-analysis.md",
-    "docs/integration-architecture.md",
-    "docs/development-guide.md",
-    "docs/index.md"
-  ],
-  "scan_status": "COMPLETED"
+    "steps_completed": [
+        {
+            "step": "step_1",
+            "status": "completed",
+            "summary": "Classified as multi-part (Backend Rust + Frontend Vue)"
+        },
+        {
+            "step": "step_2",
+            "status": "completed",
+            "summary": "Existing documentation discovered and inventoried"
+        },
+        {
+            "step": "step_3",
+            "status": "completed",
+            "summary": "Tech stack updated (Axum 0.7, Vue 3.5)"
+        },
+        {
+            "step": "step_4",
+            "status": "completed",
+            "summary": "Deep scan of critical directories (api, logic, models, stores, components)"
+        },
+        {
+            "step": "step_8",
+            "status": "completed",
+            "summary": "Architecture docs updated for all parts"
+        },
+        {
+            "step": "step_9",
+            "status": "completed",
+            "summary": "Supporting docs (API, Data, Overview) refreshed for Epic 6"
+        },
+        {
+            "step": "step_10",
+            "status": "completed",
+            "summary": "Master index consolidated"
+        }
+    ],
+    "generated_documents": [
+        "docs/project-overview.md",
+        "docs/api-contracts.md",
+        "docs/data-models.md",
+        "docs/architecture-backend.md",
+        "docs/architecture-frontend.md",
+        "docs/source-tree-analysis.md",
+        "docs/index.md"
+    ],
+    "scan_status": "COMPLETED"
 }

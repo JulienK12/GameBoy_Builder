@@ -2,7 +2,7 @@
 -- 📦 PACKS (Configurations pré-définies)
 -- ========================================
 
-CREATE TABLE packs (
+CREATE TABLE IF NOT EXISTS packs (
     id VARCHAR(50) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,

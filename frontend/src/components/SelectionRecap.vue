@@ -58,6 +58,20 @@ const recapItems = computed(() => {
     });
   }
 
+  // Buttons
+  const buttonSelection = store.currentSelection.find(i => i.category === 'buttons');
+  if (buttonSelection) {
+    items.push({
+      id: 'buttons',
+      data: buttonSelection,
+      label: 'BOUTONS',
+      color: 'text-neo-purple',
+      index: '04',
+      aspect: 'aspect-square lg:aspect-auto',
+      removeAction: () => store.selectButton(buttonSelection.id)
+    });
+  }
+
   return items;
 });
 
@@ -86,13 +100,13 @@ const hasExpertPending = computed(() => store.isValidating || Object.keys(store.
       <!-- Content Container -->
       <div v-if="hasSelection" class="relative z-10 w-full max-w-5xl flex flex-col gap-8 pb-20 lg:pb-0">
         
-        <!-- Pack Badge -->
-        <div v-if="selectedPack" class="flex justify-center animate-fade-in-down">
-          <div class="glass-premium border border-neo-orange/50 px-6 py-2 rounded-full flex items-center gap-3 shadow-[0_0_15px_rgba(255,107,53,0.3)]">
-            <span class="text-xl">🎁</span>
+        <!-- Pack Badge (Task 3.1-3.2 - Story 5.1: Enhanced visual hierarchy) -->
+        <div v-if="selectedPack" class="flex justify-center animate-fade-in-down mb-4">
+          <div class="glass-premium border-2 border-neo-orange/70 px-8 py-3 rounded-full flex items-center gap-4 shadow-[0_0_20px_rgba(255,107,53,0.5)] hover:shadow-[0_0_30px_rgba(255,107,53,0.7)] transition-shadow duration-300">
+            <span class="text-2xl">🎁</span>
             <div class="flex flex-col items-start leading-none">
-              <span class="text-[8px] font-retro text-neo-orange tracking-[.2em] uppercase">PACK ACTIVÉ</span>
-              <span class="font-title text-white text-sm tracking-wide uppercase">{{ selectedPack.name }}</span>
+              <span class="text-[9px] font-retro text-neo-orange tracking-[.25em] uppercase font-bold">PACK ACTIVÉ</span>
+              <span class="font-title text-white text-base tracking-wide uppercase">{{ selectedPack.name }}</span>
             </div>
           </div>
         </div>
@@ -113,9 +127,9 @@ const hasExpertPending = computed(() => store.isValidating || Object.keys(store.
               class="flex-1 min-w-0"
               :class="{ 'lg:row-span-2': item.id === 'shell' }"
             >
-              <!-- RECAP CARD COMPONENT -->
+              <!-- RECAP CARD COMPONENT (Task 3.1-3.3 - Story 5.1: Enhanced visual hierarchy) -->
               <div 
-                class="w-full h-full group relative glass-premium rounded-xl overflow-hidden border border-white/20 hover:border-white/40 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 block"
+                class="w-full h-full group relative glass-premium rounded-xl overflow-hidden border-2 border-white/30 hover:border-white/60 transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,107,53,0.4)] hover:-translate-y-2 block"
                 :class="item.aspect"
                 :aria-label="`${item.label}: ${item.data.detail} - ${item.data.brand}`"
               >
@@ -159,12 +173,12 @@ const hasExpertPending = computed(() => store.isValidating || Object.keys(store.
 
         </div>
 
-        <!-- Expert Mods (Story 2.3 - AC #1, #2) -->
+        <!-- Expert Mods (Story 2.3 - AC #1, #2) - Task 3.1-3.3: Enhanced visual hierarchy -->
         <div
           v-if="store.isExpertMode && expertModItems.length > 0"
-          class="relative z-10 w-full max-w-4xl"
+          class="relative z-10 w-full max-w-4xl mt-6"
         >
-          <h3 class="text-[10px] font-retro text-neo-orange uppercase tracking-widest mb-3">
+          <h3 class="text-[11px] font-retro text-neo-orange uppercase tracking-widest mb-4 font-bold">
             Mods expert
             <span
               v-if="hasExpertPending"
@@ -174,23 +188,23 @@ const hasExpertPending = computed(() => store.isValidating || Object.keys(store.
               validation…
             </span>
           </h3>
-          <ul class="flex flex-wrap gap-2" role="list">
+          <ul class="flex flex-wrap gap-3" role="list">
             <li
               v-for="(mod, idx) in expertModItems"
               :key="`expert-${idx}-${mod.label}`"
-              class="px-4 py-2 rounded border bg-black/20 border-white/20 text-white font-retro text-xs flex items-center gap-2"
+              class="px-5 py-3 rounded-lg border-2 bg-black/30 border-white/30 hover:border-neo-orange/50 text-white font-retro text-sm flex items-center gap-3 transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,107,53,0.3)]"
               :class="{ 'border-blue-500/50 bg-blue-500/10 animate-pulse': hasExpertPending }"
             >
-              <span>{{ mod.label }}</span>
-              <span class="text-neo-orange">{{ mod.price }}€</span>
+              <span class="font-bold">{{ mod.label }}</span>
+              <span class="text-neo-orange font-bold text-base">{{ mod.price }}€</span>
             </li>
           </ul>
         </div>
 
       </div>
 
-      <!-- Empty State -->
-      <div v-else class="w-full h-full flex flex-col items-center justify-center z-10 text-center opacity-40">
+      <!-- Empty State (Story 5.1 — hiérarchie visuelle) -->
+      <div v-else class="w-full h-full flex flex-col items-center justify-center z-10 text-center opacity-70" data-testid="recap-empty-state">
           <p class="font-title text-2xl text-white mb-2">NO SELECTION</p>
           <p class="font-retro text-xs text-neo-orange">Start by choosing a shell from the menu</p>
       </div>

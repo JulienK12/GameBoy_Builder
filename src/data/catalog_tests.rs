@@ -26,6 +26,8 @@ mod tests {
             ],
             compatibility_matrix: std::collections::HashMap::new(),
             expert_mods: vec![],
+            buttons: vec![],
+            button_variants: vec![],
         }
     }
 

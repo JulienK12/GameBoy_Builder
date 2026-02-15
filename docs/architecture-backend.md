@@ -4,92 +4,39 @@
 > **Langage :** Rust (Edition 2021)
 > **Framework :** Axum 0.7
 > **Base de données :** PostgreSQL (SQLx 0.8)
+> **Dernière mise à jour :** 2026-02-15 (Post-Epic 6)
 
 ---
 
 ## 1. Pattern architectural : 3-Tier
 
-```
-┌──────────────────┐
-│   API Layer      │ ← src/api/     (Handlers HTTP, routage Axum)
-│   (Présentation) │
-├──────────────────┤
-│   Logic Layer    │ ← src/logic/   (Calcul de devis, règles métier)
-│   (Métier)       │
-├──────────────────┤
-│   Data Layer     │ ← src/data/    (PostgreSQL, CSV, Catalog)
-│   (Persistance)  │
-├──────────────────┤
-│   Models Layer   │ ← src/models/  (Structs, Enums, Constantes)
-│   (Domaine)      │
-└──────────────────┘
-```
+L'application suit une structure modulaire stricte :
+- **src/api/** : Handlers HTTP, routage Axum, Middleware Auth.
+- **src/logic/** : Cœur de calcul (`calculator.rs`), règles de compatibilité (`rules.rs`), logique d'authentification.
+- **src/data/** : Accès PostgreSQL via `sqlx`, chargement du catalogue en mémoire (`Arc<Catalog>`).
+- **src/models/** : Structs du domaine, Enums métier et constantes de prix.
 
 ---
 
-## 2. Modules détaillés
+## 2. Coeur du Système : `calculator.rs`
 
-### 2.1 `src/main.rs` — Point d'entrée
+Le fichier `calculator.rs` est la pièce maîtresse (env. 1000 LOC), gérant les trois modes de calcul :
+1. **Mode Pack (Starter Kits)** : Résolution d'un `pack_id` en composants individuels avec overrides possibles.
+2. **Mode Manuel (Expert)** : Calcul granulaire basé sur les IDs de variantes fournis.
+3. **Logic Kit-Centric (Boutons)** : Nouveau moteur calculant le supplément en fonction du nombre de couleurs uniques de boutons sélectionnées (5€ par kit).
 
-Orchestre le démarrage :
-1. Connexion au pool PostgreSQL (`data::create_pool()`)
-2. Chargement du catalogue complet en mémoire (`Arc<Catalog>`)
-3. Configuration CORS (ouvert pour dev)
-4. Création du routeur Axum + service de fichiers statiques
-5. Lancement du serveur sur `0.0.0.0:3000`
+### Algorithme de calcul Kit-Centric :
+- Extraction des variantes de boutons du corps de la requête.
+- Filtrage des options "OEM" (gratuites).
+- Comptage des identifiants de variantes uniques restants.
+- Ajout d'une ligne de devis "Boutons personnalisés" au total.
 
-### 2.2 `src/api/` — Couche API
+---
 
-| Fichier | Rôle |
-|---|---|
-| `mod.rs` | Définit le routeur Axum avec tous les endpoints |
-| `handlers.rs` | Implémente les handlers (Quote, Auth, Deck) |
-| `auth.rs` | Middleware d'authentification et gestion JWT |
+## 3. Structure du Catalogue (In-Memory)
 
-**Structs de requête/réponse :**
-- `QuoteRequest` : `{ shell_variant_id, screen_variant_id?, lens_variant_id? }`
-- `QuoteResponse` : `{ success, quote?, error? }`
-- `DeckRequest` : `{ name, configuration }`
-- `AuthRequest` : `{ email, password }`
-- `HealthResponse` : `{ status, version }`
+Le catalogue est chargé au démarrage dans un `Arc<Catalog>` pour des performances optimales sans accès DB répétés lors des calculs de devis.
 
-### 2.3 `src/logic/` — Couche métier
-
-| Fichier | Rôle |
-|---|---|
-| `mod.rs` | Expose `calculate_quote` |
-| `calculator.rs` | **Cœur du système** : calcul du devis (370 LOC) |
-
-**Algorithme `calculate_quote()` :**
-1. **Résoudre la coque** → Trouver ShellVariant → Shell parent → ajouter au devis
-2. **Résoudre l'écran** → Variante fournie OU écran OEM par défaut
-3. **Vérifier compatibilité** → Matrice coque/écran → `Yes` / `Cut` (ajoute service découpe) / `No` (erreur)
-4. **Gérer la vitre** → `Component` = vitre obligatoire, `Laminated` = optionnelle (warning si fournie)
-5. **Services automatiques** → Installation écran si non-OEM (20€)
-6. **Calcul du total** → Somme de tous les `LineItem`
-
-**Tests unitaires inclus (7 tests) :**
-- FP Shell + FP Laminated = 110€
-- OEM Shell + OEM Screen + Lens = 25€
-- FP Shell + OEM Screen = Incompatible (erreur)
-- OEM Shell + HI Q5 Laminated = 115€ (avec découpe)
-- Laminated + Lens = erreur
-- Component sans vitre = erreur
-- Variantes inexistantes = erreur
-
-### 2.4 `src/data/` — Couche données
-
-| Fichier | Rôle |
-|---|---|
-| `mod.rs` | Expose `Catalog`, `create_pool`, `load_catalog_from_db` |
-| `database.rs` | Crée le pool PostgreSQL (5 connexions max) via `dotenvy` |
-| `pg_loader.rs` | Charge le catalogue complet depuis PostgreSQL |
-| `loader.rs` | Charge le catalogue depuis les fichiers CSV (fallback/tests) |
-| `catalog.rs` | Méthodes de recherche sur le `Catalog` (find, get_variants, get_compatibility) |
-| `parser.rs` | Fonctions de parsing String → Enum (Brand, MoldType, etc.) |
-| `records.rs` | Structs Serde pour la désérialisation CSV |
-
-**Structure `Catalog` :**
 ```rust
 pub struct Catalog {
     pub shells: Vec<Shell>,
@@ -98,81 +45,32 @@ pub struct Catalog {
     pub screen_variants: Vec<ScreenVariant>,
     pub lenses: Vec<Lens>,
     pub lens_variants: Vec<LensVariant>,
+    pub packs: Vec<Pack>,
+    pub expert_mods: Vec<ExpertMod>,
+    pub buttons: Vec<ButtonCategory>,
+    pub button_variants: Vec<ButtonVariant>,
     pub compatibility_matrix: HashMap<(String, String), CompatibilityStatus>,
 }
 ```
 
-**Stratégie de chargement :**
-- **Production** : `pg_loader::load_catalog_from_db()` → PostgreSQL
-- **Tests** : `loader::load_catalog()` → Fichiers CSV dans `data/`
+---
 
-### 2.5 `src/models/` — Domaine
+## 4. Persistance & Sécurité
 
-| Fichier | Rôle |
-|---|---|
-| `enums.rs` | Types métier : `MoldType`, `ScreenSize`, `ScreenAssembly`, `Brand`, `CompatibilityStatus` |
-| `product.rs` | Structs produit : `Shell`, `ShellVariant`, `Screen`, `ScreenVariant`, `Lens`, `LensVariant`, `ShellScreenCompatibility` |
-| `quote.rs` | Structs devis : `LineItem`, `Quote` |
-| `constants.rs` | Constantes : `SCR_OEM_ID`, `SCREEN_INSTALLATION_PRICE` (20€), `SHELL_CUT_PRICE` (5€) |
+### Authentification & Deck
+- **Middleware Auth** : Intercepte les cookies `auth_token`, vérifie le JWT et injecte l'`UserId` dans les handlers.
+- **Deck Manager** : CRUD sur la table `user_configurations`. Une contrainte logicielle (via trigger SQL) limite chaque utilisateur à 3 configurations sauvegardées.
+- **Quote Submissions** : Persistance des configurations finales "Ready for Build" après le passage par le **Signature Showcase**.
+
+### Multi-Console
+Le backend est agnostique au modèle ; il filtre dynamiquement le catalogue via le paramètre `console_id` ou déduit le modèle à partir de l'`handled_model` de la coque choisie.
 
 ---
 
-## 3. Flux de données principal
+## 5. Stratégie de Test
 
-```
-[Client HTTP]
-     │
-     ▼
-POST /quote { shell_variant_id, screen_variant_id?, lens_variant_id? }
-     │
-     ▼
-[handlers::calculate_quote_handler]
-     │ State(Arc<Catalog>)
-     ▼
-[logic::calculate_quote(&catalog, ...)]
-     │ 1. find_shell_variant → find_shell
-     │ 2. find_screen_variant → find_screen (ou OEM)
-     │ 3. get_compatibility(screen, shell) → Yes/Cut/No
-     │ 4. Résoudre vitre (Component/Laminated)
-     │ 5. Ajouter services automatiques
-     │ 6. Calculer total
-     ▼
-QuoteResponse { success: true, quote: { items, total_price, warnings } }
-```
-
----
-
-## 4. Dépendances clés
-
-| Crate | Version | Usage |
-|---|---|---|
-| `axum` | 0.7 | Framework HTTP async |
-| `tokio` | 1.0 (full) | Runtime async |
-| `sqlx` | 0.8 (postgres, macros, tls-rustls) | ORM PostgreSQL async |
-| `serde` / `serde_json` | 1.0 | Sérialisation JSON |
-| `csv` | 1.3 | Parsing CSV (fallback/tests) |
-| `dotenvy` | 0.15 | Variables d'environnement |
-| `tower-http` | 0.5 (cors, fs) | Middleware CORS + fichiers statiques |
-
----
-
-## 5. Points d'attention architecturaux
-
-6. **Deck System** : Persistance des configurations via PostgreSQL (`user_configurations`). Un trigger DB assure la limite de 3 slots par utilisateur.
-
-## 7. Stratégie d'Authentification (Lazy Auth)
-
-Pour maximiser la conversion et l'expérience utilisateur, l'accès au configurateur est **ouvert à tous (invités)**. L'authentification n'est requise que pour les actions de persistance ou de validation finale.
-
-| Action | Authentification | Persistence |
-|---|---|---|
-| Consulter le catalogue | Non requise | N/A |
-| Configurer / Devis temps réel | Non requise | `localStorage` (Frontend) |
-| Sauvegarder dans le "Deck" | **Requise** | PostgreSQL (`user_configurations`) |
-| Envoyer demande de devis | **Requise** | PostgreSQL (`quote_requests`) |
-
-### Flux Login-on-Save :
-1. L'utilisateur crée sa configuration en tant qu'invité.
-2. Lorsqu'il clique sur "Sauvegarder" ou "Valider", le frontend vérifie l'état d'authentification.
-3. Si non connecté : Affichage d'une modale Login/Register.
-4. Après connexion réussie : La configuration en cours est immédiatement synchronisée avec le compte utilisateur.
+La suite de tests backend (`api/` integration tests) couvre :
+- **Calcul de prix** : Packs, Expert mods, Kit-centric buttons.
+- **Compatibilité** : Rejet des écrans/coques incompatibles (ex: GBC shell avec GBA screen).
+- **Sécurité** : Protection des endpoints `/deck` et `/quote/submit`.
+- **Intégrité** : Rollback des transactions DB lors des tests d'intégration.

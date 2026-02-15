@@ -36,4 +36,5 @@ INSERT INTO packs (id, name, description, image_url, shell_variant_id, screen_va
     'VAR_SCR_GBC_HI_245L_BLACK',
     'VAR_LENS_GBC_STD_BLACK',
     3
-);
+)
+ON CONFLICT (id) DO NOTHING;

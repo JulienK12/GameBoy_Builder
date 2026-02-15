@@ -2,9 +2,15 @@
 -- 🔧 EXPERT MODS - Table des mods avancés
 -- ========================================
 
-CREATE TYPE expert_mod_category AS ENUM ('Cpu', 'Audio', 'Power');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'expert_mod_category') THEN
+    CREATE TYPE expert_mod_category AS ENUM ('Cpu', 'Audio', 'Power');
+  END IF;
+END
+$$;
 
-CREATE TABLE expert_mods (
+CREATE TABLE IF NOT EXISTS expert_mods (
     id VARCHAR(80) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     category expert_mod_category NOT NULL,

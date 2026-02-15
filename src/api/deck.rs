@@ -77,7 +77,9 @@ pub async fn create_deck_config_handler(
                 &shell,
                 screen.as_deref(),
                 lens.as_deref(),
+                None, // No button variant
                 expert_opts.as_ref(),
+                None, // No selected buttons
             ) {
                 Ok(quote) => Some(quote.total_price),
                 Err(_) => None, // stocker sans prix si config invalide (ex. variante supprimée)

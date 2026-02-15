@@ -86,6 +86,7 @@ const currentVariants = computed(() => {
     case 'shell': return store.shellVariants;
     case 'screen': return store.screenVariants;
     case 'lens': return store.lensVariants;
+    case 'buttons': return store.buttonVariants;
     default: return [];
   }
 });
@@ -109,6 +110,11 @@ const filteredVariants = computed(() => {
     else if (store.activeCategory === 'lens') {
       if (activeFilter.value === 'LARGE') variants = variants.filter(v => v.id && v.id.includes('LRG'));
       if (activeFilter.value === 'STD') variants = variants.filter(v => v.id && v.id.includes('STD'));
+    }
+    else if (store.activeCategory === 'buttons') {
+      if (activeFilter.value === 'TRANSPARENT') variants = variants.filter(v => v.isTransparent);
+      else if (activeFilter.value === 'GLOW') variants = variants.filter(v => v.isGlowInDark);
+      else if (activeFilter.value.startsWith('BRAND_')) variants = variants.filter(v => v.brand === activeFilter.value.replace('BRAND_', ''));
     }
   }
   // 4. Smart Sort (Compatibility)
@@ -170,12 +176,14 @@ function selectVariant(variant) {
   if (store.activeCategory === 'shell') store.selectShell(variant.id, variant.colorHex);
   if (store.activeCategory === 'screen') store.selectScreen(variant.id);
   if (store.activeCategory === 'lens') store.selectLens(variant.id);
+  if (store.activeCategory === 'buttons') store.selectButton(variant.id);
 }
 
 function isActive(variant) {
   if (store.activeCategory === 'shell') return store.selectedShellVariantId === variant.id;
   if (store.activeCategory === 'screen') return store.selectedScreenVariantId === variant.id;
   if (store.activeCategory === 'lens') return store.selectedLensVariantId === variant.id;
+  if (store.activeCategory === 'buttons') return store.selectedButtonVariantId === variant.id;
   return false;
 }
 

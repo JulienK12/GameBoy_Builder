@@ -113,4 +113,4 @@ workflow_status:
     command: "/bmad:bmm:workflows:sprint-planning"
     status: "_bmad-output/implementation-artifacts/sprint-status.yaml"
     completed_at: "2026-02-11T10:58:00+01:00"
-    note: "Sprint status generated — 4 Epics, 10 Stories, all backlog"
+    note: "Implementation complete — 4 Epics, 10 Stories, all done"

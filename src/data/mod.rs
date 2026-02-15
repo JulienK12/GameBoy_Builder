@@ -11,8 +11,9 @@ pub mod database;
 pub mod pg_loader;
 pub mod auth_repo;
 pub mod deck_repo;
+pub mod quote_submit_repo;
 
 // Ré-export pour simplifier
 pub use loader::{Catalog, load_catalog};
-pub use database::create_pool;
+pub use database::{create_pool, create_pool_for_tests};
 pub use pg_loader::load_catalog_from_db;

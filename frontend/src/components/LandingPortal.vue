@@ -1,12 +1,21 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useConfiguratorStore } from '@/stores/configurator'
 
 const store = useConfiguratorStore()
 const showPacks = ref(false)
 const isLoading = ref(false)
+const errorMessage = ref('')
+
+function formatError(err) {
+  if (err?.response?.status === 404 || err?.code === 'ERR_NETWORK') {
+    return 'Serveur inaccessible. Vérifiez que le backend est démarré sur http://127.0.0.1:3000'
+  }
+  return err?.response?.data?.error || err?.message || 'Erreur réseau. Réessayez.'
+}
 
 async function choisirStarterKits() {
+  errorMessage.value = ''
   isLoading.value = true
   try {
     await store.fetchCatalog()
@@ -14,18 +23,24 @@ async function choisirStarterKits() {
     showPacks.value = true
   } catch (err) {
     console.error('Erreur lors de l\'initialisation des packs:', err)
+    errorMessage.value = formatError(err)
   } finally {
     isLoading.value = false
   }
 }
 
 async function choisirAtelierLibre() {
+  errorMessage.value = ''
   isLoading.value = true
   try {
+    // Réinitialiser la configuration avant d'entrer dans l'atelier libre
+    // pour garantir un état propre (sans pack sélectionné)
+    store.resetConfig()
     await store.fetchCatalog()
     store.showLandingPortal = false
   } catch (err) {
     console.error('Erreur lors du chargement de l\'atelier:', err)
+    errorMessage.value = formatError(err)
   } finally {
     isLoading.value = false
   }
@@ -36,6 +51,10 @@ function choisirPack(packId) {
 }
 
 function retourPortail() {
+  // Si un pack était sélectionné, le réinitialiser lors du retour
+  if (store.selectedPackId) {
+    store.resetConfig()
+  }
   showPacks.value = false
 }
 </script>
@@ -54,8 +73,8 @@ function retourPortail() {
          style="background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);">
     </div>
 
-    <!-- Contenu principal -->
-    <div class="relative z-10 w-full max-w-4xl mx-auto px-6">
+    <!-- Contenu principal (pointer-events-auto pour garantir la réception des clics) -->
+    <div class="relative z-10 w-full max-w-4xl mx-auto px-6 pointer-events-auto">
       
       <!-- Header -->
       <div class="text-center mb-12 animate-fade-in-up">
@@ -196,6 +215,24 @@ function retourPortail() {
               </div>
             </button>
           </div>
+        </div>
+      </Transition>
+
+      <!-- Message d'erreur API (backend non démarré, réseau, etc.) -->
+      <Transition name="fade">
+        <div
+          v-if="errorMessage"
+          class="mt-8 p-4 glass-premium rounded-xl border-2 border-red-500/50 text-red-400 text-center"
+          role="alert"
+        >
+          <p class="font-retro text-[8px] uppercase tracking-widest mb-2">{{ errorMessage }}</p>
+          <button
+            type="button"
+            @click="errorMessage = ''"
+            class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 rounded-lg font-retro text-[8px] uppercase tracking-widest transition-colors"
+          >
+            Fermer
+          </button>
         </div>
       </Transition>
 

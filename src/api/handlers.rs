@@ -7,31 +7,18 @@ use axum::{
     http::StatusCode,
     Json,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::sync::Arc;
 
 use crate::api::AppState;
-use crate::data::Catalog;
 use crate::logic::calculate_quote;
-use crate::models::{Quote, PackOverrides, ExpertOptionsRequest, ExpertOptions, ExpertMod, ExpertModCategory};
+use crate::models::{Quote, QuoteRequest, ExpertOptions, ExpertMod, ExpertModCategory};
 use std::collections::HashMap;
 
 // ========================================
 // 📥 Requêtes entrantes
 // ========================================
 
-#[derive(Debug, Deserialize)]
-pub struct QuoteRequest {
-    // Mode 1 : Sélection manuelle
-    pub shell_variant_id: Option<String>,
-    pub screen_variant_id: Option<String>,
-    pub lens_variant_id: Option<String>,
-    // Mode 2 : Résolution de pack
-    pub pack_id: Option<String>,
-    pub overrides: Option<PackOverrides>,
-    // Mode 3 : Expert Options (indépendant de pack_id/overrides, peut être combiné avec les deux modes)
-    pub expert_options: Option<ExpertOptionsRequest>,
-}
 
 // ========================================
 // 📤 Réponses sortantes
@@ -84,7 +71,9 @@ pub async fn calculate_quote_handler(
                     &resolved.shell_variant_id,
                     resolved.screen_variant_id.as_deref(),
                     resolved.lens_variant_id.as_deref(),
+                    request.button_variant_id.as_deref(),
                     expert_options.as_ref(),
+                    request.selected_buttons.as_ref(),
                 )
                 .map(|quote| (quote, "pack".to_string(), Some(pack_name)))
             },
@@ -96,7 +85,9 @@ pub async fn calculate_quote_handler(
             shell_variant_id,
             request.screen_variant_id.as_deref(),
             request.lens_variant_id.as_deref(),
+            request.button_variant_id.as_deref(),
             expert_options.as_ref(),
+            request.selected_buttons.as_ref(),
         )
         .map(|quote| (quote, "manual".to_string(), None))
     } else {
@@ -170,6 +161,59 @@ pub async fn get_lenses(
     }))
 }
 
+/// GET /catalog/buttons - Liste tous les boutons (toutes consoles)
+pub async fn get_all_buttons(
+    State(state): State<Arc<AppState>>,
+) -> Json<serde_json::Value> {
+    let catalog = &state.catalog;
+    Json(serde_json::json!({
+        "buttons": catalog.buttons,
+        "variants": catalog.button_variants,
+    }))
+}
+
+/// GET /catalog/buttons/{console_id} - Liste les boutons filtrés par modèle
+pub async fn get_buttons(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(console_id): axum::extract::Path<String>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    let catalog = &state.catalog;
+    
+    // Mapping des IDs courts vers les noms complets du catalogue
+    let full_model_name = match console_id.to_lowercase().as_str() {
+        "gbc" => "Gameboy Color",
+        "dmg" | "pocket" => "Gameboy DMG/Pocket",
+        "gba" => "Gameboy Advance",
+        "sp" | "gbasp" => "Gameboy Advance SP",
+        _ => {
+            return Err((
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({
+                    "success": false,
+                    "error": format!("Console model '{}' not found", console_id)
+                }))
+            ));
+        }
+    };
+
+    let filtered_buttons: Vec<_> = catalog.buttons.iter()
+        .filter(|b| b.handled_model == full_model_name)
+        .collect();
+
+    let button_ids: std::collections::HashSet<_> = filtered_buttons.iter()
+        .map(|b| &b.id)
+        .collect();
+
+    let filtered_variants: Vec<_> = catalog.button_variants.iter()
+        .filter(|v| button_ids.contains(&v.button_id))
+        .collect();
+
+    Ok(Json(serde_json::json!({
+        "buttons": filtered_buttons,
+        "variants": filtered_variants,
+    })))
+}
+
 /// GET /catalog/expert-mods - Liste les mods expert groupés par catégorie
 pub async fn get_expert_mods(
     State(state): State<Arc<AppState>>,
@@ -214,7 +258,9 @@ pub async fn get_packs(
                         &resolved.shell_variant_id, 
                         resolved.screen_variant_id.as_deref(), 
                         resolved.lens_variant_id.as_deref(),
-                        None // No expert options when calculating pack prices
+                        None, // No button variant
+                        None, // No expert options when calculating pack prices
+                        None, // No selected buttons when calculating pack prices
                     )
                 })
                 .map(|quote| quote.total_price)

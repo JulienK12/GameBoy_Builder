@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use crate::models::{
     Shell, ShellVariant, Screen, ScreenVariant,
     Lens, LensVariant, CompatibilityStatus, Pack, ExpertMod,
+    Button, ButtonVariant,
 };
 use super::Catalog;
 
@@ -74,6 +75,18 @@ pub async fn load_catalog_from_db(pool: &PgPool) -> Result<Catalog, sqlx::Error>
         .await?;
     println!("   ✅ {} mods expert chargés", expert_mods.len());
 
+    // Charger les boutons
+    let buttons: Vec<Button> = sqlx::query_as("SELECT * FROM buttons")
+        .fetch_all(pool)
+        .await?;
+    println!("   ✅ {} boutons chargés", buttons.len());
+
+    // Charger les variantes de boutons
+    let button_variants: Vec<ButtonVariant> = sqlx::query_as("SELECT * FROM button_variants")
+        .fetch_all(pool)
+        .await?;
+    println!("   ✅ {} variantes de boutons chargées", button_variants.len());
+
     Ok(Catalog {
         shells,
         shell_variants,
@@ -84,5 +97,7 @@ pub async fn load_catalog_from_db(pool: &PgPool) -> Result<Catalog, sqlx::Error>
         compatibility_matrix,
         packs,
         expert_mods,
+        buttons,
+        button_variants,
     })
 }

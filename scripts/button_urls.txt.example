@@ -1,0 +1,20 @@
+# Format: NOM_FICHIER.jpg URL_IMAGE
+# Une ligne par image
+# Les lignes commençant par # sont ignorées
+
+# Exemple (remplacez par les vraies URLs depuis AliExpress):
+# VAR_BTN_GBC_CGS_RED.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_BLUE.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_PURPLE.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_PINK.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_BLACK.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_GREEN.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_WHITE.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_YELLOW.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_CLEAR_RED.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_CLEAR_YELLOW.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_CLEAR_GREEN.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_CLEAR_BLUE.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_CLEAR_LIGHT_BLUE.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_CLEAR_PURPLE.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg
+# VAR_BTN_GBC_CGS_GLOW_GREEN.jpg https://ae-pic-a1.aliexpress-media.com/kf/.../image.jpg

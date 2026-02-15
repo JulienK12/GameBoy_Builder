@@ -106,7 +106,7 @@ test.describe('Signature Showcase (Story 4.1)', () => {
 
         await page.getByRole('button', { name: /retour à l'atelier/i }).click();
         await expect(page.getByRole('dialog', { name: /signature showcase/i })).not.toBeVisible({ timeout: 5000 });
-        await expect(page.getByRole('button', { name: 'RECAP_VIEW' })).toBeVisible({ timeout: 5000 });
+        await expect(page.getByTestId('btn-recap-view')).toBeVisible({ timeout: 5000 });
         await expect(page.locator('text=Atomic Purple').first()).toBeVisible({ timeout: 5000 });
     });
 
@@ -126,5 +126,88 @@ test.describe('Signature Showcase (Story 4.1)', () => {
         await expect(page.getByTestId('signature-total')).toBeVisible();
         await page.getByRole('button', { name: /retour à l'atelier/i }).click();
         await expect(page.getByRole('dialog', { name: /signature showcase/i })).not.toBeVisible({ timeout: 3000 });
+    });
+
+    test.describe('Story 4.2 — Confirmer la Création (auth + submit)', () => {
+        test('6.2 — Sans être connecté : clic Confirmer → modale Login ; après login → soumission et message succès', async ({ page }) => {
+            await page.route('**/auth/me', async route => route.fulfill({ status: 401 }));
+            await page.route('**/auth/login', async route => route.fulfill({
+                status: 200,
+                headers: { 'set-cookie': 'auth_token=fake-jwt; Path=/' },
+                body: JSON.stringify({ user: { id: 'u1', email: 'u@test.com' } })
+            }));
+            await page.route('**/quote/submit', async route => route.fulfill({
+                status: 201,
+                body: JSON.stringify({ success: true, submission_id: 'sub-123' })
+            }));
+
+            await page.locator('text=STARTER KITS').click();
+            await page.locator('text=BUDGET GAMER').first().click();
+            await expect(page.locator('text=STARTER_KITS')).not.toBeVisible({ timeout: 10000 });
+
+            const finaliserBtn = page.getByTestId('btn-finaliser').or(page.getByTestId('btn-finaliser-mobile'));
+            await finaliserBtn.first().click();
+            await expect(page.getByRole('dialog', { name: /signature showcase/i })).toBeVisible({ timeout: 5000 });
+
+            await page.getByTestId('signature-confirm-creation').click();
+            await expect(page.getByTestId('auth-email')).toBeVisible({ timeout: 5000 });
+
+            await page.getByTestId('auth-email').fill('u@test.com');
+            await page.getByTestId('auth-password').fill('password123');
+            await page.getByTestId('auth-submit-login').click();
+
+            await expect(page.getByTestId('submission-success-banner')).toContainText(/commande enregistrée|ready for build/i, { timeout: 10000 });
+            await expect(page.getByRole('dialog', { name: /signature showcase/i })).not.toBeVisible({ timeout: 3000 });
+        });
+
+        test('6.3 — Déjà connecté : Confirmer la Création → soumission directe et message succès', async ({ page }) => {
+            await page.route('**/auth/me', async route => route.fulfill({
+                status: 200,
+                body: JSON.stringify({ user: { id: 'u1', email: 'u@test.com' } })
+            }));
+            await page.route('**/quote/submit', async route => route.fulfill({
+                status: 201,
+                body: JSON.stringify({ success: true, submission_id: 'sub-456' })
+            }));
+
+            await page.locator('text=STARTER KITS').click();
+            await page.locator('text=BUDGET GAMER').first().click();
+            await expect(page.locator('text=STARTER_KITS')).not.toBeVisible({ timeout: 10000 });
+
+            const finaliserBtn = page.getByTestId('btn-finaliser').or(page.getByTestId('btn-finaliser-mobile'));
+            await finaliserBtn.first().click();
+            await expect(page.getByRole('dialog', { name: /signature showcase/i })).toBeVisible({ timeout: 5000 });
+
+            await page.getByTestId('signature-confirm-creation').click();
+
+            await expect(page.getByTestId('auth-modal')).not.toBeVisible({ timeout: 2000 });
+            await expect(page.getByRole('dialog', { name: /signature showcase/i })).not.toBeVisible({ timeout: 5000 });
+            await expect(page.getByTestId('submission-success-banner')).toContainText(/commande enregistrée|ready for build/i, { timeout: 5000 });
+        });
+
+        test('6.4 — Erreur réseau ou 500 sur submit → message affiché, pas de redirection', async ({ page }) => {
+            await page.route('**/auth/me', async route => route.fulfill({
+                status: 200,
+                body: JSON.stringify({ user: { id: 'u1', email: 'u@test.com' } })
+            }));
+            await page.route('**/quote/submit', async route => route.fulfill({
+                status: 500,
+                body: JSON.stringify({ error: 'Erreur serveur' })
+            }));
+
+            await page.locator('text=STARTER KITS').click();
+            await page.locator('text=BUDGET GAMER').first().click();
+            await expect(page.locator('text=STARTER_KITS')).not.toBeVisible({ timeout: 10000 });
+
+            const finaliserBtn = page.getByTestId('btn-finaliser').or(page.getByTestId('btn-finaliser-mobile'));
+            await finaliserBtn.first().click();
+            await expect(page.getByRole('dialog', { name: /signature showcase/i })).toBeVisible({ timeout: 5000 });
+
+            await page.getByTestId('signature-confirm-creation').click();
+
+            await expect(page.getByTestId('signature-submit-error')).toContainText(/erreur|réessayez/i, { timeout: 5000 });
+            await expect(page.getByRole('dialog', { name: /signature showcase/i })).toBeVisible();
+            await expect(page.getByTestId('submission-success-banner')).not.toBeVisible();
+        });
     });
 });

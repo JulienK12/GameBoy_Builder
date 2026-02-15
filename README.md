@@ -67,6 +67,31 @@ npm run dev
 ```
 Open your browser at `http://localhost:5173`.
 
+### 4. Tests d'intégration (optionnel)
+
+Les tests d'intégration (auth, deck, quote_submit) utilisent PostgreSQL. **Recommandation** : une base dédiée, **copiée depuis ta base dev** pour avoir le même catalogue et schéma :
+
+```bash
+# Avec -U postgres -h localhost (comme ton .env)
+dropdb -U postgres -h localhost gameboy_configurator_test 2>/dev/null || true
+createdb -U postgres -h localhost gameboy_configurator_test
+pg_dump -U postgres -h localhost gameboy_configurator | psql -U postgres -h localhost -d gameboy_configurator_test -q
+```
+
+Dans ton `.env`, ajoute (même user/mot de passe que `DATABASE_URL`, autre base) :
+
+```env
+DATABASE_URL_TEST=postgres://postgres:TON_MDP@localhost:5432/gameboy_configurator_test
+```
+
+Puis lance les tests ignorés par défaut :
+
+```bash
+cargo test -- --ignored
+```
+
+Sans `DATABASE_URL_TEST`, les tests utilisent `DATABASE_URL` (ta base dev).
+
 ## 📂 Project Structure
 
 ```bash

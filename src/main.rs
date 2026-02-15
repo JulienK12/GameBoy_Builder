@@ -9,8 +9,9 @@ mod api;
 
 use std::sync::Arc;
 use tokio::net::TcpListener;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::services::ServeDir;
+use axum::http::{header, Method};
 
 #[tokio::main]
 async fn main() {
@@ -43,12 +44,23 @@ async fn main() {
 
     let state = Arc::new(api::AppState { catalog, pool });
 
-    // 4. CORS : credentials pour cookies, origine explicite (pas *)
-    let cors_origin = std::env::var("CORS_ORIGIN").unwrap_or_else(|_| "http://127.0.0.1:5173".to_string());
+    // 4. CORS : credentials pour cookies, origines autorisées (5173 + 5174 car Vite peut basculer si port occupé)
+    let cors_origins = std::env::var("CORS_ORIGIN")
+        .map(|s| s.split(',').map(|o| o.trim().to_string()).collect::<Vec<_>>())
+        .unwrap_or_else(|_| vec![
+            "http://127.0.0.1:5173".to_string(),
+            "http://127.0.0.1:5174".to_string(),
+            "http://localhost:5173".to_string(),
+            "http://localhost:5174".to_string(),
+        ]);
+    let origins: Vec<_> = cors_origins
+        .iter()
+        .map(|o| o.parse::<axum::http::HeaderValue>().expect("CORS_ORIGIN invalide"))
+        .collect();
     let cors = CorsLayer::new()
-        .allow_origin(cors_origin.parse::<axum::http::HeaderValue>().expect("CORS_ORIGIN invalide"))
-        .allow_methods(Any)
-        .allow_headers(Any)
+        .allow_origin(AllowOrigin::list(origins))
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION, header::ACCEPT])
         .allow_credentials(true);
 
     // 5. Créer le routeur
@@ -64,6 +76,7 @@ async fn main() {
     println!("   📍 GET  /catalog/shells  → Liste des coques");
     println!("   📍 GET  /catalog/screens → Liste des écrans");
     println!("   📍 GET  /catalog/lenses  → Liste des vitres");
+    println!("   📍 GET  /catalog/buttons → Liste des boutons (tous)");
     println!("   📍 GET  /catalog/packs   → Liste des packs");
     println!("   📍 POST /auth/register   → Inscription");
     println!("   📍 POST /auth/login      → Connexion");

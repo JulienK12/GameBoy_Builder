@@ -1,10 +1,10 @@
 /**
- * Store Pinia "auth" — état d'authentification (Story 3.3).
- * Utilisé par le store deck pour savoir si on sync avec le backend ou localStorage.
+ * Store Pinia "auth" — état d'authentification (Story 3.3, 4.2).
+ * Utilisé par le store deck et par SignatureShowcase (Confirmer la Création).
  */
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getAuthMe } from '@/api/backend';
+import { getAuthMe, login as apiLogin, register as apiRegister, logout as apiLogout } from '@/api/backend';
 
 export const useAuthStore = defineStore('auth', () => {
     /** @type {import('vue').Ref<{ id: string, email: string } | null>} */
@@ -28,16 +28,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     /**
-     * Déconnexion : efface l'état local. Optionnellement appeler POST /auth/logout pour supprimer le cookie.
+     * Connexion (POST /auth/login). Met à jour user depuis la réponse.
+     * @param {string} email
+     * @param {string} password
+     * @throws en cas d'erreur (401, etc.)
      */
-    function logout() {
-        user.value = null;
+    async function login(email, password) {
+        const data = await apiLogin(email, password);
+        user.value = data.user ? { id: data.user.id, email: data.user.email } : null;
+    }
+
+    /**
+     * Inscription (POST /auth/register). Met à jour user depuis la réponse.
+     * @param {string} email
+     * @param {string} password
+     * @throws en cas d'erreur (400 email déjà pris, etc.)
+     */
+    async function register(email, password) {
+        const data = await apiRegister(email, password);
+        user.value = data.user ? { id: data.user.id, email: data.user.email } : null;
+    }
+
+    /**
+     * Déconnexion : appelle POST /auth/logout puis efface l'état local.
+     */
+    async function logout() {
+        try {
+            await apiLogout();
+        } finally {
+            user.value = null;
+        }
     }
 
     return {
         user,
         isAuthenticated,
         fetchUser,
+        login,
+        register,
         logout,
     };
 });

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { calculateQuote, fetchShells, fetchScreens, fetchLenses, fetchPacks, fetchExpertMods, formatImageUrl } from '@/api/backend';
+import { calculateQuote, fetchShells, fetchScreens, fetchLenses, fetchButtons, fetchPacks, fetchExpertMods, formatImageUrl } from '@/api/backend';
 import { CATEGORIES } from '@/constants';
 
 export const useConfiguratorStore = defineStore('configurator', () => {
@@ -8,6 +8,8 @@ export const useConfiguratorStore = defineStore('configurator', () => {
     const selectedShellVariantId = ref(null);
     const selectedScreenVariantId = ref(null);
     const selectedLensVariantId = ref(null);
+    const selectedButtonVariantId = ref(null);
+    const selectedButtons = ref({}); // Story 6.3 - Granular selection { button_id: variant_id }
     const selectedShellColorHex = ref('#8B5CF6'); // Default: Atomic Purple
 
     // UI State
@@ -17,6 +19,7 @@ export const useConfiguratorStore = defineStore('configurator', () => {
     const showLandingPortal = ref(true); // Portail d'accueil visible par défaut
     const isExpertMode = ref(false); // Expert Mode toggle state
     const showSignatureShowcase = ref(false); // Story 4.1 — mode Signature plein écran
+    const submissionSuccessMessage = ref(null); // Story 4.2 — message après POST /quote/submit réussi ("Commande enregistrée")
 
     const quote = ref(null);
     const error = ref(null);
@@ -31,6 +34,8 @@ export const useConfiguratorStore = defineStore('configurator', () => {
     const screenVariants = ref([]);
     const lenses = ref([]);
     const lensVariants = ref([]);
+    const buttons = ref([]);
+    const buttonVariants = ref([]);
 
     // Packs data
     const packs = ref([]);
@@ -38,7 +43,7 @@ export const useConfiguratorStore = defineStore('configurator', () => {
 
     // Expert Options (Story 2.3)
     const selectedExpertOptions = ref({ cpu: null, audio: null, power: null });
-    
+
     // Rollback system for optimistic updates (Story 2.3)
     const lastValidConfig = ref(null);
     const pendingSelections = ref({}); // { category: modId }
@@ -91,10 +96,11 @@ export const useConfiguratorStore = defineStore('configurator', () => {
 
         try {
             // Fetch real data from backend API
-            const [shellsData, screensData, lensesData] = await Promise.all([
+            const [shellsData, screensData, lensesData, buttonsData] = await Promise.all([
                 fetchShells(),
                 fetchScreens(),
                 fetchLenses(),
+                fetchButtons(),
             ]);
 
             // Load compatibility
@@ -169,8 +175,28 @@ export const useConfiguratorStore = defineStore('configurator', () => {
                 supplement: v.supplement || 0,
             }));
 
+            // Process buttons
+            buttons.value = buttonsData.buttons || [];
+            buttonVariants.value = (buttonsData.variants || []).map(v => {
+                const parentButton = buttons.value.find(b => b.id === v.button_id);
+                return {
+                    id: v.id,
+                    name: v.name,
+                    imageUrl: formatImageUrl(v.image_url),
+                    buttonId: v.button_id,
+                    supplement: v.supplement || 0,
+                    colorHex: v.color_hex || null,
+                    isTransparent: v.is_transparent || false,
+                    isGlowInDark: v.is_glow_in_dark || false,
+                    brand: parentButton?.brand || 'Unknown',
+                    buttonName: parentButton?.name || '',
+                    basePrice: parentButton?.price || 0,
+                    fullName: parentButton?.name ? `${parentButton.name} - ${v.name}` : v.name,
+                };
+            });
+
             // ... (rest of logging/auto-select)
-            console.log(`✅ Catalogue chargé: ${shellVariants.value.length} variantes coques, ${screenVariants.value.length} variantes écrans, ${lensVariants.value.length} variantes vitres, ${compatibility.value.length} règles de compatibilité`);
+            console.log(`✅ Catalogue chargé: ${shellVariants.value.length} variantes coques, ${screenVariants.value.length} variantes écrans, ${lensVariants.value.length} variantes vitres, ${buttonVariants.value.length} variantes boutons, ${compatibility.value.length} règles de compatibilité`);
 
             // NOTE: No auto-selection - user must explicitly choose their configuration
         } catch (err) {
@@ -237,11 +263,13 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         try {
             // Inclure expert options si Expert Mode est actif
             const expertOptions = isExpertMode.value ? selectedExpertOptions.value : null;
-            
+
             quote.value = await calculateQuote({
                 shellVariantId: selectedShellVariantId.value,
                 screenVariantId: selectedScreenVariantId.value,
                 lensVariantId: selectedLensVariantId.value,
+                buttonVariantId: selectedButtonVariantId.value,
+                selected_buttons: Object.keys(selectedButtons.value).length > 0 ? selectedButtons.value : null,
                 expertOptions,
             });
         } catch (err) {
@@ -281,10 +309,55 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         if (!skipFetch) fetchQuoteData();
     }
 
+    /**
+     * Sélectionne une variante de boutons
+     * @param {string|null} variantId - ID de la variante à sélectionner, ou null pour désélectionner
+     * @param {boolean} skipFetch - Si true, ne déclenche pas le recalcul du devis
+     */
+    function selectButton(variantId, skipFetch = false) {
+        // Validation: vérifier que le variantId existe si fourni
+        if (variantId && !buttonVariants.value.find(v => v.id === variantId)) {
+            console.error(`❌ Button variant "${variantId}" not found in catalog`);
+            return;
+        }
+
+        if (selectedButtonVariantId.value === variantId) {
+            selectedButtonVariantId.value = null;
+        } else {
+            selectedButtonVariantId.value = variantId;
+        }
+        // Story 6.3: Clearing granular selection when main kit is selected could be an option,
+        // but for now we keep them independent or let selectedButtons override in backend.
+        // User flow: selection of a kit might clear granular? 
+        // Let's clear granular if a master kit is selected to avoid confusion?
+        // For now, keep simple.
+
+        if (!skipFetch) fetchQuoteData();
+    }
+
+    /**
+     * Story 6.3 - Update specific button selection
+     */
+    function updateButtonSelection(buttonId, variantId) {
+        if (!variantId) {
+            const newSelection = { ...selectedButtons.value };
+            delete newSelection[buttonId];
+            selectedButtons.value = newSelection;
+        } else {
+            selectedButtons.value = {
+                ...selectedButtons.value,
+                [buttonId]: variantId
+            };
+        }
+        fetchQuoteData();
+    }
+
     function resetConfig() {
         selectedShellVariantId.value = null;
         selectedScreenVariantId.value = null;
         selectedLensVariantId.value = null;
+        selectedButtonVariantId.value = null;
+        selectedButtons.value = {};
         selectedPackId.value = null;
         quote.value = null;
         error.value = null;
@@ -405,7 +478,7 @@ export const useConfiguratorStore = defineStore('configurator', () => {
      */
     function rollbackToLastValidConfig() {
         if (!lastValidConfig.value) return;
-        
+
         selectedShellVariantId.value = lastValidConfig.value.selectedShellVariantId;
         selectedScreenVariantId.value = lastValidConfig.value.selectedScreenVariantId;
         selectedLensVariantId.value = lastValidConfig.value.selectedLensVariantId;
@@ -526,11 +599,11 @@ export const useConfiguratorStore = defineStore('configurator', () => {
     function selectExpertMod(category, modId) {
         // Sauvegarder l'état actuel avant modification
         saveCurrentConfigAsValid();
-        
+
         // Optimistic update : appliquer immédiatement
         selectedExpertOptions.value[category] = modId;
         pendingSelections.value[category] = modId;
-        
+
         // Envoyer à la queue de validation
         enqueueValidation(category, modId);
     }
@@ -540,12 +613,15 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         selectedShellVariantId,
         selectedScreenVariantId,
         selectedLensVariantId,
+        selectedButtonVariantId,
+        selectedButtons,
         selectedShellColorHex,
         activeCategory,
         smartSortEnabled, // Integrated
         show3D,          // New state
         isExpertMode,    // Expert Mode state
         showSignatureShowcase, // Story 4.1 — Signature Showcase fullscreen
+        submissionSuccessMessage, // Story 4.2 — récap panier après submit
         selectedShellParentId,   // Exposed for gallery
         selectedScreenParentId,  // Exposed for gallery
         categories: CATEGORIES,
@@ -560,6 +636,8 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         screenVariants,
         lenses,
         lensVariants,
+        buttons,
+        buttonVariants,
         // Computed
         totalPrice,
         hasError,
@@ -582,6 +660,28 @@ export const useConfiguratorStore = defineStore('configurator', () => {
                 const l = lensVariants.value.find(v => v.id === selectedLensVariantId.value);
                 if (l) selection.push({ ...l, category: 'lens', label: 'VITRE', detail: l.name });
             }
+            // Buttons (optional - user can finalize without selecting buttons)
+            if (selectedButtonVariantId.value) {
+                const b = buttonVariants.value.find(v => v.id === selectedButtonVariantId.value);
+                if (b) selection.push({ ...b, category: 'buttons', label: 'BOUTONS', detail: b.name });
+            }
+
+            // Buttons (Granular)
+            if (Object.keys(selectedButtons.value).length > 0) {
+                Object.entries(selectedButtons.value).forEach(([btnId, variantId]) => {
+                    const variant = buttonVariants.value.find(v => v.id === variantId);
+                    const button = buttons.value.find(b => b.id === btnId);
+                    if (variant) {
+                        selection.push({
+                            ...variant,
+                            category: 'buttons',
+                            label: button ? button.name.toUpperCase() : 'BOUTON',
+                            detail: variant.name,
+                            buttonId: btnId // Helper for tests/UI
+                        });
+                    }
+                });
+            }
             // NOTE: Service items are now fetched from backend via quote.items
             return selection;
         }),
@@ -589,6 +689,8 @@ export const useConfiguratorStore = defineStore('configurator', () => {
         selectShell,
         selectScreen,
         selectLens,
+        selectButton,
+        updateButtonSelection,
         selectPack,
         setCategory, // Exposed
         toggle3D,
